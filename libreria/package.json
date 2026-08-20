@@ -1,0 +1,29 @@
+{
+  "name": "rn-savings-notifier",
+  "version": "0.0.0",
+  "description": "Native savings-goal notifier for the Savings Goal Wallet host",
+  "main": "src/index",
+  "codegenConfig": {
+    "name": "RnSavingsNotifierSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.rnsavingsnotifier"
+    }
+  },
+  "author": " <> ()",
+  "license": "UNLICENSED",
+  "homepage": "#readme",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "create-react-native-library": {
+    "type": "turbo-module",
+    "languages": "kotlin-objc",
+    "tools": [
+      "jest"
+    ],
+    "version": "0.63.0"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "web",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Static savings-goal micro-app loaded in the native WebView."
+}

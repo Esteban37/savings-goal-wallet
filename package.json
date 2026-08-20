@@ -1,0 +1,18 @@
+{
+  "name": "savings-goal-wallet",
+  "private": true,
+  "description": "Savings Goal Wallet monorepo. React Native pin: 0.81.6 (do not use 0.82+).",
+  "workspaces": [
+    "mobile",
+    "libreria",
+    "web"
+  ],
+  "scripts": {
+    "start": "npm run start -w mobile",
+    "android": "npm run android -w mobile",
+    "test": "npm run test -w mobile"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
