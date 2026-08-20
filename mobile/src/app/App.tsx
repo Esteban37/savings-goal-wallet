@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { Provider } from 'react-redux';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { notifyGoalCompleted } from 'rn-savings-notifier';
+import { GoalListContainer } from '../features/goals/public';
+import { createAppDependencies } from './di/create-app-dependencies';
+import { createAppStore } from './store/store';
 
-const LOCAL_WEB_URI = 'file:///android_asset/web/index.html';
+const store = createAppStore(createAppDependencies());
 
 function App() {
   useEffect(() => {
@@ -13,26 +16,16 @@ function App() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <WebView
-        source={{ uri: LOCAL_WEB_URI }}
-        javaScriptEnabled={true}
-        allowFileAccess={true}
-        allowFileAccessFromFileURLs={true}
-        originWhitelist={['*', 'file://*']}
-        mixedContentMode="always"
-        onMessage={event => {
-          console.log('web message', event.nativeEvent.data);
-        }}
-      />
-    </View>
+    <Provider store={store}>
+      <SafeAreaProvider
+        initialMetrics={{
+          frame: { x: 0, y: 0, width: 0, height: 0 },
+          insets: { top: 0, left: 0, right: 0, bottom: 0 },
+        }}>
+        <GoalListContainer />
+      </SafeAreaProvider>
+    </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
 
 export default App;

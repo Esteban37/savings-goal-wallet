@@ -2,24 +2,18 @@
  * @format
  */
 
-import React from 'react';
-import ReactTestRenderer from 'react-test-renderer';
+import { render, waitFor } from '@testing-library/react-native';
 import App from '../src/app/App';
-
-jest.mock('react-native-webview', () => {
-  const { View } = require('react-native');
-  return {
-    WebView: View,
-  };
-});
 
 jest.mock('rn-savings-notifier', () => ({
   notifyGoalCompleted: jest.fn(() => Promise.resolve()),
   showConfirmDialog: jest.fn(() => Promise.resolve(true)),
 }));
 
-test('renders correctly', async () => {
-  await ReactTestRenderer.act(() => {
-    ReactTestRenderer.create(<App />);
+test('renders the native goal list', async () => {
+  const { getByText } = render(<App />);
+
+  await waitFor(() => {
+    expect(getByText('Vacaciones')).toBeTruthy();
   });
 });
