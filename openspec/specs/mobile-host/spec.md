@@ -18,26 +18,29 @@ The mobile host SHALL be a React Native 0.81.x application generated with the of
 - **THEN** no Expo runtime or Expo application framework package is declared
 
 ### Requirement: Feature folder skeleton is reserved
-The mobile host source tree SHALL include a composition root, a shared kernel area, three feature slots (`goals`, `goal-detail`, `notifications`) with public barrels, and a shared UI area for tokens and atoms. The shared kernel MUST contain savings-goal domain types, application ports, and the postMessage contract. Feature presentation folders, feature store slots, and the composition-root DI/store modules MAY remain placeholders. The host MUST NOT configure a global application store and MUST NOT add feature navigation.
+The mobile host source tree SHALL include a composition root, a shared kernel area, three feature slots (`goals`, `goal-detail`, `notifications`) with public barrels, and a shared UI area for tokens and atoms. The shared kernel MUST contain savings-goal domain types, application ports, and the postMessage contract. The composition root MUST configure application dependencies and a global application store. The host MUST NOT add a navigation stack between features.
 
 #### Scenario: Skeleton exists without domain logic
 - **WHEN** a developer opens the mobile source tree after this change
-- **THEN** the composition root, kernel, three feature barrels, and shared UI slots exist, the kernel contains savings-goal domain types, ports, and the message contract, and there is no configured Redux store and no navigation stack between features
+- **THEN** the composition root, kernel, three feature barrels, and shared UI slots exist, the kernel contains savings-goal domain types, ports, and the message contract, the composition root configures dependencies and the application store, and there is no navigation stack between features
 
-### Requirement: Host screen loads the local micro-app
-On launch, the host SHALL present a full-screen web view that loads the bundled `web` micro-app from a local `file` URI (Android asset path). The host MUST enable JavaScript in that view and MUST accept `postMessage` events from the page. The launch screen MAY log received messages. The launch screen MUST NOT invoke the kernel message parser; schema validation belongs to the postMessage contract and is tested independently of this screen.
+### Requirement: Launch screen is the native goal list
+On launch, the host SHALL present the native savings-goal list as the first screen. The launch screen MUST NOT be a full-screen web view.
 
-#### Scenario: WebView shows the test micro-app
+#### Scenario: List is the first screen
 - **WHEN** the Android application finishes launching
-- **THEN** the user sees the local micro-app, including its test control for requesting a deposit
+- **THEN** the user sees the native goal list and does not see the bundled micro-app as the launch screen
 
-#### Scenario: Host accepts a message from the page
-- **WHEN** the micro-app posts a message to the host
-- **THEN** the host receives the message without crashing
+### Requirement: Bundled local web assets remain available
+The host SHALL keep the `web` micro-app files bundled as local Android assets under a `web` asset path. This change MUST NOT remove that copy step. The launch screen MUST NOT load those assets.
 
-#### Scenario: Launch screen does not parse envelopes
-- **WHEN** the micro-app posts a message to the host
-- **THEN** the launch screen still does not have to validate that payload against the contract schema
+#### Scenario: Android build still includes web files
+- **WHEN** the Android application is built
+- **THEN** the files from `web/` are available to the host as bundled local assets under a `web` asset path
+
+#### Scenario: Launch does not load the asset URI
+- **WHEN** the application finishes launching
+- **THEN** the launch screen does not load `file:///android_asset/web/index.html`
 
 ### Requirement: Host imports the savings notifier library
 The host SHALL import the library’s public JavaScript API and invoke at least one of `notifyGoalCompleted` or `showConfirmDialog` during startup or first render. That call MUST settle without crashing the application (stub native implementations are acceptable).

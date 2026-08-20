@@ -147,10 +147,10 @@ iOS del template existe; el cierre de Fase 1 es **Android**.
 | Documento | Contenido |
 |-----------|-----------|
 | [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) | Alcance HU 1–4, arquitectura, contrato `postMessage`, fases |
-| [`openspec/specs/`](openspec/specs/) | Specs vigentes: workspaces, host, micro-app, librería, dominio, contrato `postMessage` |
+| [`openspec/specs/`](openspec/specs/) | Specs vigentes: workspaces, host, micro-app, librería, dominio, contrato `postMessage`, listado |
 | [`openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/`](openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/) | Change archivado de Fase 1 |
 | [`openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/`](openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/) | Change archivado de Fase 2 |
-| [`openspec/changes/fase-3-redux-hu-1/`](openspec/changes/fase-3-redux-hu-1/) | Change de Fase 3 (RTK + listado HU 1) |
+| [`openspec/changes/archive/2026-08-20-fase-3-redux-hu-1/`](openspec/changes/archive/2026-08-20-fase-3-redux-hu-1/) | Change archivado de Fase 3 |
 | [`mobile/README.md`](mobile/README.md) | Notas del template CLI (Metro, reload) |
 
 ---

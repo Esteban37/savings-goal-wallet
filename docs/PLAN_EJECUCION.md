@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec:** `fase-1-andamiaje-monorepo` y `fase-2-dominio-puertos-contrato` archivados; `fase-3-redux-hu-1` aplicado (RTK + listado HU 1). Las fases 4–8 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato` y `fase-3-redux-hu-1` (RTK + listado HU 1). Las fases 4–8 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -366,7 +366,7 @@ F7 puede avanzar en paralelo desde F2 (skills se usan de verdad). F6 no empieza 
 
 **No hace:** WebView de detalle (el host de F1 puede quedar como pantalla auxiliar o sustituirse por el listado como launch screen; el HTML sigue en assets).
 
-**Cierre:** listado nativo con 2–3 metas seed, progreso visible. **Estado:** aplicada (`feat/fase-3-redux-hu-1`).
+**Cierre:** listado nativo con 2–3 metas seed, progreso visible. **Estado:** aplicada y archivada.
 
 ### Fase 4 — HU 2 y HU 3 (ciclo completo)
 
@@ -474,11 +474,11 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo` y `fase-2-dominio-puertos-contrato` están **archivados**. `fase-3-redux-hu-1` está **aplicado** en esta entrega.
+Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato` y `fase-3-redux-hu-1` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
 | 1 | `fase-1-andamiaje-monorepo` | Archivado. Andamiaje + esqueleto en el monorepo. |
 | 2 | `fase-2-dominio-puertos-contrato` | Archivado. Dominio, puertos, use cases y parser Zod. |
-| 3 | `fase-3-redux-hu-1` | Aplicado. Store RTK, seed in-memory y listado nativo HU 1. |
+| 3 | `fase-3-redux-hu-1` | Archivado. Store RTK, seed in-memory y listado nativo HU 1. |
 | 4–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
