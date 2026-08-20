@@ -20,7 +20,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | `libreria/` | `rn-savings-notifier` | TurboModule: aviso al completar una meta y diálogo de confirmación |
 | `web/` | `web` | Micro-app HTML/JS estática cargada en el WebView (`file://`) |
 
-**Fase actual:** Fase 1 — andamiaje del monorepo. Android abre, el WebView carga HTML local y el host importa la librería (stubs). Listado, Redux y Toast nativo real llegan en fases siguientes.
+**Fase actual:** Fase 2 — dominio, puertos y contrato. El kernel (`SavingsGoal`, puertos, Zod `postMessage`) está testeado sin UI. Listado, Redux y Toast nativo real llegan en fases siguientes.
 
 ---
 
@@ -31,13 +31,14 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 - **Micro-app local** — `web/` se copia a assets de Android; sin servidor ni `fetch`
 - **Librería de primer nivel** — TurboModule Kotlin + Objective-C, autolinking, nunca vendored en `mobile/`
 - **Arquitectura congelada** — Clean Architecture feature-first, DI por factory + `extraArgument` de RTK
+- **Kernel testeable** — dominio, puertos y parser Zod cubiertos por Jest, sin UI ni store
 - **OpenSpec** — un change por fase, rama `feat/<change-name>`, PR hacia `main`
 
 ---
 
 ## Funcionalidades
 
-### Implementado (Fase 1)
+### Implementado (Fases 1–2)
 
 | Funcionalidad | Estado |
 |---------------|--------|
@@ -47,13 +48,17 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | Contrato de prueba `WEB_READY` / `DEPOSIT_REQUESTED` | ✅ |
 | API JS `notifyGoalCompleted` / `showConfirmDialog` (stubs) | ✅ |
 | Esqueleto `mobile/src` (composition root, `core/`, features) | ✅ |
+| Dominio `Money` / `Progress` / `SavingsGoal` + tests | ✅ |
+| Puertos `GoalsRepository` / `GoalNotifier` / `ConfirmDialog` y fakes | ✅ |
+| Use cases `GetGoals` y `MakeDeposit` (sin UI ni store) | ✅ |
+| Catálogo Zod `postMessage` + `parseBridgeMessage` | ✅ |
 
 ### Por fase
 
 | Fase | Entrega | Estado |
 |------|---------|--------|
 | **1** Andamiaje del monorepo | Metro, autolinking, WebView, librería stub | ✅ |
-| **2** Dominio y contratos | `SavingsGoal`, Zod `postMessage`, puertos | Pendiente |
+| **2** Dominio y contratos | `SavingsGoal`, Zod `postMessage`, puertos | ✅ |
 | **3** HU 1 — listado nativo | RTK + listado nombre / objetivo / acumulado / % | Pendiente |
 | **4** HU 2–3 — detalle y abono | WebView inmersivo; listado sin recargar | Pendiente |
 | **5** HU 4 — nativo real | Toast / notificación al 100% | Pendiente |
@@ -74,7 +79,7 @@ Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_E
 | **Community CLI** | `@react-native-community/cli` 20 — sin Expo |
 | **TypeScript** | Strict en `mobile/` y `libreria/` |
 | **Redux Toolkit** | Fuente de verdad aplicativa (Fase 3+) |
-| **Zod** | Contrato `postMessage` y snapshots (Fase 2+) |
+| **Zod** | Contrato `postMessage` (`parseBridgeMessage`) y snapshots |
 | **react-native-webview** | Host de la micro-app local |
 | **TurboModule** | `rn-savings-notifier` (Kotlin + Objective-C) |
 | **Jest + RNTL** | Tests en `mobile/` y `libreria/`; **cero tests en `web/`** |
@@ -110,7 +115,7 @@ Detalle: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) · specs en [`opensp
 **Requisitos:** Node **20+** · **JDK 17** · Android SDK · emulador o dispositivo.
 
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/Esteban37/savings-goal-wallet.git
 cd savings-goal-wallet
 npm install
 npm start
@@ -122,11 +127,13 @@ En otra terminal:
 npm run android
 ```
 
-La app abre un WebView local con el botón **Request test deposit**. El host importa `rn-savings-notifier` al arrancar (stub; aún no hay Toast).
+La app abre un WebView local con el botón **Request test deposit**. El host importa `rn-savings-notifier` al arrancar (stub; aún no hay Toast). `App.tsx` no parsea el bridge: el parser vive en `core/contracts` y se prueba con Jest.
 
 ```bash
 npm test
 ```
+
+Cubre dominio, parser Zod y use cases (`GetGoals`, `MakeDeposit`) con fakes, más el smoke de `App.test.tsx`.
 
 iOS del template existe; el cierre de Fase 1 es **Android**.
 
@@ -137,8 +144,9 @@ iOS del template existe; el cierre de Fase 1 es **Android**.
 | Documento | Contenido |
 |-----------|-----------|
 | [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) | Alcance HU 1–4, arquitectura, contrato `postMessage`, fases |
-| [`openspec/specs/`](openspec/specs/) | Specs vigentes: workspaces, host, micro-app, librería |
+| [`openspec/specs/`](openspec/specs/) | Specs vigentes: workspaces, host, micro-app, librería, dominio, contrato `postMessage` |
 | [`openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/`](openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/) | Change archivado de Fase 1 |
+| [`openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/`](openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/) | Change archivado de Fase 2 |
 | [`mobile/README.md`](mobile/README.md) | Notas del template CLI (Metro, reload) |
 
 ---
@@ -173,7 +181,7 @@ Un change OpenSpec ≈ una rama `feat/<change-name>` ≈ un PR → `main`. El hi
 `main` es la rama de integración. Cada change de OpenSpec se implementa en su propia rama y entra con pull request.
 
 1. Actualizar `main` desde `origin/main`.
-2. Crear `feat/<change-name>` desde `main` (esta fase: `feat/fase-1-andamiaje-monorepo`).
+2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-3-redux-listado`).
 3. Commits convencionales (`feat`, `fix`, `test`, `docs`, `chore`) y push en esa rama.
 4. Abrir un PR hacia `main` y mergearlo ahí.
 
