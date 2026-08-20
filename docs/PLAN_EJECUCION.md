@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Change OpenSpec archivado:** `fase-1-andamiaje-monorepo` (andamiaje aplicado). Las fases 2–5 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo` (andamiaje) y `fase-2-dominio-puertos-contrato` (dominio, puertos, Zod). Las fases 3–8 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -353,7 +353,7 @@ F7 puede avanzar en paralelo desde F2 (skills se usan de verdad). F6 no empieza 
 - Puertos y use cases con fakes (incluye `GoalNotifier` no-op).
 - Nada de store ni pantallas.
 
-**Cierre:** `npm test` cubre dominio + parser. Coverage de dominio empieza aquí (≥70% es realista en esta fase).
+**Cierre:** `npm test` cubre dominio + parser. Coverage de dominio empieza aquí (≥70% es realista en esta fase). **Estado:** aplicada y archivada.
 
 ### Fase 3 — Redux + HU 1
 
@@ -443,10 +443,10 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 ## 11. Checklist del producto
 
-- [ ] Repositorio con historial incremental.
-- [ ] 3 paquetes workspace: `web/`, `libreria/`, `mobile/` (monorepo).
-- [ ] Mobile con CLI oficial (sin Expo), RN 0.81.x + React 19.
-- [ ] `web/`: solo `postMessage` (sin suite de tests en ese workspace).
+- [x] Repositorio con historial incremental.
+- [x] 3 paquetes workspace: `web/`, `libreria/`, `mobile/` (monorepo).
+- [x] Mobile con CLI oficial (sin Expo), RN 0.81.x + React 19.
+- [x] `web/`: solo `postMessage` (sin suite de tests en ese workspace).
 - [ ] Listado nativo (Redux) + WebView de detalle/abono.
 - [ ] `postMessage` bidireccional con contrato tipado (Zod).
 - [ ] Store actualizado desde la web (HU 3).
@@ -473,9 +473,10 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-El change `fase-1-andamiaje-monorepo` está **archivado** (proposal, specs, design, tasks aplicados): workspaces, host Android, librería stub y micro-app de prueba.
+Los changes `fase-1-andamiaje-monorepo` y `fase-2-dominio-puertos-contrato` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
 | 1 | `fase-1-andamiaje-monorepo` | Archivado. Andamiaje + esqueleto en el monorepo. |
-| 2–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
+| 2 | `fase-2-dominio-puertos-contrato` | Archivado. Dominio, puertos, use cases y parser Zod. |
+| 3–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |

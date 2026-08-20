@@ -1,21 +1,4 @@
-# mobile-host Specification
-
-## Purpose
-
-Defines the React Native CLI Android host that launches with New Architecture and Hermes, reserves the feature folder skeleton, and displays the local web micro-app.
-
-## Requirements
-
-### Requirement: Official CLI host without Expo
-The mobile host SHALL be a React Native 0.81.x application generated with the official Community CLI, using React 19 and TypeScript. The host MUST NOT depend on Expo. Hermes MUST be enabled. The New Architecture MUST be enabled (`newArchEnabled` true on Android).
-
-#### Scenario: Android application launches
-- **WHEN** a developer starts the Android host from the mobile workspace with Metro running
-- **THEN** the application opens on an emulator or device without crashing at startup
-
-#### Scenario: Expo is absent
-- **WHEN** a developer inspects the mobile workspace dependencies
-- **THEN** no Expo runtime or Expo application framework package is declared
+## MODIFIED Requirements
 
 ### Requirement: Feature folder skeleton is reserved
 The mobile host source tree SHALL include a composition root, a shared kernel area, three feature slots (`goals`, `goal-detail`, `notifications`) with public barrels, and a shared UI area for tokens and atoms. The shared kernel MUST contain savings-goal domain types, application ports, and the postMessage contract. Feature presentation folders, feature store slots, and the composition-root DI/store modules MAY remain placeholders. The host MUST NOT configure a global application store and MUST NOT add feature navigation.
@@ -38,10 +21,3 @@ On launch, the host SHALL present a full-screen web view that loads the bundled 
 #### Scenario: Launch screen does not parse envelopes
 - **WHEN** the micro-app posts a message to the host
 - **THEN** the launch screen still does not have to validate that payload against the contract schema
-
-### Requirement: Host imports the savings notifier library
-The host SHALL import the library’s public JavaScript API and invoke at least one of `notifyGoalCompleted` or `showConfirmDialog` during startup or first render. That call MUST settle without crashing the application (stub native implementations are acceptable).
-
-#### Scenario: Library import does not crash
-- **WHEN** the Android application launches with the library imported and a public API method invoked
-- **THEN** the application remains running and the returned promise fulfills or rejects without an unhandled native crash
