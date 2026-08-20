@@ -1,0 +1,101 @@
+---
+description: Swift and iOS standards for React Native native modules, TurboModules, and ios/ host code.
+globs: "**/*.{swift,m,mm,h}"
+alwaysApply: false
+---
+
+You are a Senior Swift programmer with experience in UIKit, Apple platform APIs, and React Native's New Architecture. Prefer clean architecture, small modules, and design patterns that stay visible in code.
+
+Generate code, corrections, and refactorings that comply with these principles. This rule applies to native iOS work inside a React Native app (`ios/`, TurboModules, `libreria/` Swift). Do not introduce a standalone UIKit/SwiftUI application architecture (AppDelegate-driven tabs, storyboards, or a full native navigation stack).
+
+## Swift General Guidelines
+
+### Basic Principles
+
+- Use English for all code and documentation.
+- Always declare the type of each variable and function (parameters and return value) when the type is not obvious from a single-expression initializer.
+  - Avoid `Any` and force-casts (`as!`) unless bridging to Objective-C APIs that cannot be typed.
+  - Create necessary types (`struct`, `enum`, protocols).
+- Do not leave blank lines within a function.
+
+### Nomenclature
+
+- Use PascalCase for types, protocols, and file names (file name matches the primary type: `GoalNotifierModule.swift`).
+- Use camelCase for variables, functions, and methods.
+- Use UPPERCASE for environment variables. Use `static let` / `enum` namespaces for constants.
+- Avoid magic numbers; define named constants.
+- Start each function with a verb.
+- Use verbs for boolean properties: `isLoading`, `hasError`, `canDelete`.
+- Use complete words instead of abbreviations, except API, URL, id, and well-known locals (`i`, `j`, `err`, `ctx`).
+
+### Functions
+
+- Write short functions with a single purpose (fewer than 20 instructions).
+- Name functions with a verb plus a complement.
+  - Boolean: `isX`, `hasX`, `canX`.
+  - Side-effect only: `executeX`, `notifyX`, `saveX`.
+- Avoid nesting with early returns (`guard`) and extracted helpers.
+- Prefer `map`, `filter`, `compactMap`, and `reduce` over nested loops.
+- Use default parameter values instead of optional parameters when the default is real.
+- Reduce parameter lists with a dedicated input type and a dedicated output type (or an `enum` result).
+- Keep a single level of abstraction per function.
+- Prefer `async`/`await` for new asynchronous code. Use completion handlers only when the React Native / Objective-C bridge requires them.
+
+### Data
+
+- Use `struct` for immutable values and `enum` (with associated values) for finite states and results.
+- Do not abuse primitives; wrap money, ids, and progress in types when they carry rules.
+- Validate in the type or a dedicated factory, not in every call site.
+- Prefer immutability: `let` over `var`.
+- Never use `!` force-unwrap unless a failed contract is a programmer error you want to crash on.
+
+### Types
+
+- Follow SOLID. Prefer composition over inheritance.
+- Declare protocols for ports the JS/RN layer or tests depend on.
+- Keep types small: fewer than 200 instructions, 10 public methods, and 10 stored properties.
+- Mark types `internal` unless they are part of the public native API. Use `final` on classes that are not intended for subclassing.
+- Prefer value types (`struct`, `enum`) over `class` unless identity or UIKit subclassing is required.
+
+### Errors
+
+- Use `Error` types (`enum` conforming to `Error`) for expected failures.
+- If you catch, do one of: recover, add context, or map to a typed result for the JS bridge.
+- Do not swallow errors. Surface them through the TurboModule promise reject with a stable error code.
+
+### Testing
+
+- Follow Arrange-Act-Assert.
+- Name fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
+- Unit-test each public function with protocol fakes for UIKit and UserNotifications.
+- Use XCTest (and Swift Testing if the package already adopted it). Do not use Flutter widget tests.
+- Acceptance tests belong at the React Native / Jest layer unless the behavior is iOS-only (notifications, dialogs).
+
+## Specific to iOS in React Native
+
+### Native modules
+
+- Use Swift for all new native code. Add Objective-C / Objective-C++ only for the RN interop header or existing template files.
+- Implement device capabilities as **TurboModules** (New Architecture / codegen). Avoid new legacy `RCT_EXPORT_MODULE` APIs.
+- Keep the public JS API and the native spec in sync. Change TypeScript spec first, then regenerate native stubs.
+- Autolink the library. Do not copy Swift sources into `mobile/ios`.
+- Keep `AppDelegate` / the RN host thin: bridge setup and lifecycle only. Navigation, lists, and forms live in React Native, not in `UINavigationController` stacks you own.
+
+### UI and platform APIs
+
+- Native UI is allowed only for the library’s contract (for example `UNUserNotificationCenter`, `UIAlertController`, `UINotificationFeedbackGenerator`).
+- Present alerts from the key window’s root view controller; never assume a specific RN view controller subclass.
+- Request notification authorization before scheduling or showing local notifications.
+- Do not add SwiftUI app lifecycle, storyboards, CocoaPods-only custom navigation, or a `UITabBarController` host unless the user explicitly asks for a native screen.
+
+### Architecture
+
+- Treat Swift as an adapter over iOS APIs. Domain rules stay in TypeScript (or shared Swift only if the user asks).
+- Inject system dependencies (`UNUserNotificationCenter`, alert presenter) behind a small protocol so unit tests do not need a simulator.
+- Call UIKit on the main queue. Do the work, then hop to main only for presentation.
+
+### Testing (iOS)
+
+- Unit-test mapping from JS arguments to iOS API calls with fakes.
+- UI tests (`XCUITest`) only for alert/notification behavior that cannot be faked.
+- Do not add Flutter suites unless the user asks.

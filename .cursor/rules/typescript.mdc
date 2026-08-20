@@ -1,0 +1,93 @@
+---
+description: TypeScript, React Native, and shared-contract standards. Includes CURSOR:PAIR, RFC, and RFP shortcuts.
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+You are an expert in TypeScript and React Native. Follow the user's requirements to the letter. Restate the change objective in one short summary, then implement.
+
+When the task is non-trivial, think step-by-step and outline the plan in short pseudocode before coding.
+
+## Tech stack
+
+- TypeScript (strict). No unjustified `any`.
+- React Native CLI (not Expo), React 19, RN 0.81+ when the project is on that line.
+- Redux Toolkit for app-wide state in `mobile/`.
+- Zod (or equivalent) for runtime contracts: `postMessage` payloads, native module args, persisted snapshots.
+- Jest + React Native Testing Library for `mobile/` and `libreria/` JS tests.
+- Do not add Lodash, Node.js-only APIs, or web-only APIs (`window` except inside `web/` or a WebView script) unless the file already depends on them.
+
+## Shortcuts
+
+- **CURSOR:PAIR**: act as pair programmer and senior developer. Offer alternatives the user may not have considered and recommend one course of action with trade-offs.
+- **RFC**: refactor the code per the instructions. Follow those requirements; do not expand scope.
+- **RFP**: improve the prompt. Start with a clear breakdown of the issue (Google Technical Writing Style Guide: active voice, present tense, short sentences). Then rewrite the prompt as smaller steps.
+
+## TypeScript guidelines
+
+### Core principles
+
+- Write straightforward, readable, maintainable code.
+- Follow SOLID and name the design pattern in code when the architecture or README requires it (Adapter, Repository, Container-Presenter).
+- Prefer domain types over primitives for money, progress, and message envelopes.
+- Use `Promise.all` for independent async work. Measure before adding caches or workers.
+
+### Naming
+
+- Classes and types: PascalCase
+- Variables, functions, hooks: camelCase (`useGoalList`, `makeDeposit`)
+- Files and directories: kebab-case (`make-deposit.ts`, `goal-list-container.tsx`)
+- React components: PascalCase file matching the component (`GoalList.tsx`) is acceptable when colocated with the component.
+- Constants and env keys: UPPERCASE
+- Booleans: `isX`, `hasX`, `canX`
+
+### Functions and modules
+
+- Use descriptive verb-plus-noun names (`getGoals`, `parseWebMessage`).
+- Prefer arrow functions for small pure operations; named function declarations for components, hooks, and use cases.
+- Use default parameters and object destructuring.
+- Keep functions short and single-purpose. Early return on invalid input.
+- Domain and application layers must not import `react-native`, React, or Redux. Infrastructure and presentation may.
+
+### Types
+
+- For new serialized shapes (bridge messages, storage, native specs), define a Zod schema and export `z.infer<typeof schema>`.
+- Use `import type` when the import is types-only.
+- Use `readonly` on props and immutable data.
+- Prefer discriminated unions for `postMessage` and async results (`type: "DEPOSIT_CONFIRMED"`).
+- Do not use `any`. Use `unknown` and narrow. For JSON from WebView, parse with Zod; do not type-assert.
+
+### React Native
+
+- Functional components only. Extract hooks for reusable behavior.
+- Container-Presenter: containers talk to store / use cases; presenters are UI without I/O.
+- Keep TurboModule JS wrappers thin: types + native call. No domain rules inside the wrapper.
+- WebView is an adapter: serialize/deserialize the contract only. Do not put use-case logic in `onMessage`.
+- Do not introduce Expo APIs.
+
+### Documentation
+
+- Follow Google's Technical Writing Style Guide (active voice, present tense).
+- JSDoc/TypeDoc on exported public APIs (library entry points, use cases, message contracts). Do not JSDoc every internal line.
+- Use TypeDoc-compatible tags only.
+
+### Testing
+
+- Arrange-Act-Assert. Names: `inputX`, `mockX`, `actualX`, `expectedX`.
+- Unit-test domain, parsers, reducers, selectors, and the library JS API (native module mocked).
+- Use RNTL for at least one container or hook in `mobile/`.
+- Do not add tests under `web/` unless the user asks.
+
+### Code review checklist
+
+- Types are correct; no leaked `any`
+- Domain stays free of RN/Redux imports
+- Bridge messages match the Zod (or TS) contract
+- Errors are handled or explicitly propagated
+- Tests cover the change
+- Names match these conventions
+
+### Git
+
+- Conventional Commits (`feat`, `fix`, `chore`, `docs`, `refactor`, `test`).
+- Short title, then two newlines, then a body that explains why.

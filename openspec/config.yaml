@@ -1,0 +1,31 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+context: |
+  Product: Savings Goal Wallet. npm workspaces monorepo with mobile/ (React Native 0.81.x CLI host, React 19, no Expo), libreria/ (rn-savings-notifier TurboModule), and web/ (static HTML micro-app in a WebView).
+  Architecture: Clean Architecture + feature-first (goals, goal-detail, notifications) with a shared kernel in core/. Redux Toolkit extraArgument for DI. Native list; deposits in the web micro-app via typed postMessage.
+  Docs: docs/PLAN_EJECUCION.md freezes scope, architecture, and phase order. Frame artifacts around the Savings Goal Wallet product and this npm workspaces monorepo.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

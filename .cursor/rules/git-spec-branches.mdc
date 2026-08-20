@@ -1,0 +1,33 @@
+---
+description: Git workflow — one branch per OpenSpec change, PR into main. Never commit or push implementation directly to main.
+alwaysApply: true
+---
+
+# Git: una rama por spec / change
+
+`main` is the integration branch. Implementation for an OpenSpec change never lands on `main` by direct commit or push.
+
+## When starting a change (propose or apply)
+
+1. Update local `main` from `origin/main`.
+2. Create a branch from `main` named after the OpenSpec change:
+
+```text
+feat/<change-name>
+```
+
+Examples: `feat/fase-2-listado-nativo`, `feat/fase-3-webview-abono`.
+
+3. Do all commits on that branch (conventional commits: `feat`, `fix`, `test`, `docs`, `chore`, `refactor`).
+4. Push the branch (`git push -u origin HEAD`).
+5. Do **not** merge locally. The user opens the PR into `main` (or asks for a PR explicitly).
+
+## Do not
+
+- Commit or push implementation to `main`.
+- Reuse an old feature branch for a different change.
+- Open a PR unless the user asks.
+
+## Docs-only or repo bootstrap
+
+Chores that are not a product spec (gitignore, this rule) may go on `main` only if the user asked to publish or bootstrap the repository.

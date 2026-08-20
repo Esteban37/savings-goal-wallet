@@ -1,0 +1,100 @@
+---
+description: Kotlin and Android standards for React Native native modules, TurboModules, and android/ host code.
+globs: "**/*.{kt,kts}"
+alwaysApply: false
+---
+
+You are a Senior Kotlin programmer with experience in Android and React Native's New Architecture. Prefer clean architecture, small modules, and design patterns that stay visible in code.
+
+Generate code, corrections, and refactorings that comply with these principles. This rule applies to native Android work inside a React Native app (`android/`, TurboModules, `libreria/` Kotlin). Do not introduce a standalone XML/Fragment application architecture.
+
+## Kotlin General Guidelines
+
+### Basic Principles
+
+- Use English for all code and documentation.
+- Always declare the type of each variable and function (parameters and return value).
+  - Avoid platform types leaking from Java interop without an explicit Kotlin type.
+  - Create necessary types (`data class`, `sealed class` / `sealed interface`).
+- Do not leave blank lines within a function.
+
+### Nomenclature
+
+- Use PascalCase for classes, objects, and file names (file name matches the primary type: `GoalNotifierModule.kt`).
+- Use camelCase for variables, functions, and methods.
+- Use UPPERCASE for environment variables and `const val` constants.
+- Avoid magic numbers; define named constants.
+- Start each function with a verb.
+- Use verbs for boolean properties: `isLoading`, `hasError`, `canDelete`.
+- Use complete words instead of abbreviations, except API, URL, id, and well-known locals (`i`, `j`, `err`, `ctx`).
+
+### Functions
+
+- Write short functions with a single purpose (fewer than 20 instructions).
+- Name functions with a verb plus a complement.
+  - Boolean: `isX`, `hasX`, `canX`.
+  - Side-effect only: `executeX`, `notifyX`, `saveX`.
+- Avoid nesting with early returns and extracted helpers.
+- Prefer `map`, `filter`, `fold`, and scoped functions (`let`, `also`, `run`) over nested blocks.
+- Use default parameter values instead of nullable overloads when the default is real.
+- Reduce parameter lists with a data class for inputs and a data class (or sealed result) for outputs.
+- Keep a single level of abstraction per function.
+- Prefer `suspend` functions and coroutines over blocking Java APIs. Dispatch to `Dispatchers.Main` only for UI/Toaster/notification presentation.
+
+### Data
+
+- Use `data class` for immutable values and `sealed class` / `sealed interface` for finite states and results.
+- Do not abuse primitives; wrap money, ids, and progress in types when they carry rules.
+- Validate in the type or a dedicated factory, not in every call site.
+- Prefer immutability: `val` over `var`; `const val` for compile-time constants.
+- Never use `!!` unless a failed contract is a programmer error you want to crash on.
+
+### Classes
+
+- Follow SOLID. Prefer composition over inheritance.
+- Declare interfaces for ports the JS/RN layer or domain depends on.
+- Keep classes small: fewer than 200 instructions, 10 public methods, and 10 properties.
+- Mark classes `internal` unless they are part of the public native API.
+
+### Exceptions
+
+- Use exceptions for unexpected failures.
+- If you catch, do one of: recover, add context, or map to a typed `Result` / sealed error for the JS bridge.
+- Do not swallow errors. Surface them through the TurboModule promise (`reject`) with a stable error code.
+
+### Testing
+
+- Follow Arrange-Act-Assert.
+- Name fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
+- Unit-test each public function with fakes for Android framework types.
+- Use JUnit 4/5 + MockK (or the project’s existing test stack). Do not use Flutter widget tests.
+- Acceptance tests belong at the React Native / Jest layer unless the behavior is Android-only (notifications, dialogs).
+
+## Specific to Android in React Native
+
+### Native modules
+
+- Use Kotlin for all new native code. Do not add Java unless an existing RN template file requires it.
+- Implement device capabilities as **TurboModules** (New Architecture / codegen). Avoid legacy `ReactContextBaseJavaModule` for new APIs.
+- Keep the public JS API and the native spec in sync. Change TypeScript spec first, then regenerate native stubs.
+- Autolink the library. Do not copy Kotlin sources into `mobile/android`.
+- Host Activity customization stays minimal: the RN `MainActivity` / `MainApplication` only register packages and lifecycle. Navigation, lists, and forms live in React Native, not in Fragments.
+
+### UI and platform APIs
+
+- Native UI is allowed only for the library’s contract (for example `Toast`, `NotificationCompat`, `AlertDialog`).
+- Use AndroidX and Material 3 components for those native surfaces.
+- Request notification permission (`POST_NOTIFICATIONS`) when targeting API 33+ before posting.
+- Do not add Navigation Component, ViewBinding, XML layouts, or a BottomNavigation host unless the user explicitly asks for a native screen.
+
+### Architecture
+
+- Treat Kotlin as an adapter over Android APIs. Domain rules stay in TypeScript (or shared Kotlin only if the user asks).
+- Inject Android dependencies (`Context`, `NotificationManager`) behind a small interface so unit tests do not need a device.
+- Prefer `applicationContext` for toasts and notifications.
+
+### Testing (Android)
+
+- Unit-test mapping from JS arguments to Android API calls with fakes.
+- Instrumented tests (`androidTest`) only for notification/dialog behavior that cannot be faked.
+- Do not add Flutter or Espresso suites unless the user asks.
