@@ -45,6 +45,9 @@ yarn-error.log*
 # Generated web assets (copied from web/ on Android preBuild)
 mobile/android/app/src/main/assets/web/
 
+# Test coverage reports
+coverage/
+
 # Generated PDF page renders
 docs/.pdf-pages/
 
