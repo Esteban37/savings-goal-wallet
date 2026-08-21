@@ -11,7 +11,8 @@
     "start": "npm run start -w mobile",
     "android": "npm run android -w mobile",
     "ios": "npm run ios -w mobile",
-    "test": "npm run test -w mobile && npm run test -w libreria"
+    "test": "npm run test -w mobile && npm run test -w libreria",
+    "test:coverage": "npm run test:coverage -w mobile && npm run test:coverage -w libreria"
   },
   "engines": {
     "node": ">=20"

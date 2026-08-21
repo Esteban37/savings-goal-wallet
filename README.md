@@ -1,6 +1,6 @@
 # Savings Goal Wallet
 
-App React Native para **metas de ahorro**: listado nativo, abono en una micro-app web embebida y confirmación nativa al completar el objetivo. Monorepo npm con **Clean Architecture** feature-first, **Redux Toolkit** y una librería **TurboModule** de primer nivel.
+App React Native para **metas de ahorro**: listado nativo, abono en una micro-app web embebida y confirmación nativa al completar el objetivo. Monorepo npm con **Clean Architecture** feature-first, **Container-Presenter**, **DI explícita** (factory + `extraArgument` de Redux Toolkit) y una librería **TurboModule** de primer nivel.
 
 ![React Native](https://img.shields.io/badge/React_Native-0.81.6-61DAFB?logo=react&logoColor=white)
 ![React](https://img.shields.io/badge/React-19.1.4-149ECA?logo=react&logoColor=white)
@@ -12,15 +12,26 @@ App React Native para **metas de ahorro**: listado nativo, abono en una micro-ap
 
 ## Qué es
 
-Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El host nativo es la fuente de verdad de las metas; la web solo pide abonos por `postMessage`; la librería nativa se **crea y se consume** como workspace, no se copia a `mobile/`.
+Tres paquetes en un repositorio. El host nativo es la fuente de verdad; la web solo pide por `postMessage`; la librería se **crea y se consume** como workspace, no se copia a `mobile/`.
 
 | Workspace | Paquete | Rol |
 |-----------|---------|-----|
 | `mobile/` | `SavingsGoalWallet` | Host React Native (CLI oficial, sin Expo) |
-| `libreria/` | `rn-savings-notifier` | TurboModule: aviso al completar una meta y diálogo de confirmación |
-| `web/` | `web` | Micro-app HTML/JS estática cargada en el WebView (`file://`) |
+| `libreria/` | `rn-savings-notifier` | TurboModule: aviso al completar/registrar y diálogo de confirmación |
+| `web/` | `web` | Micro-app HTML/JS estática en el WebView (`file://`) |
 
-**Fase actual:** Fase 9 — entorno iOS. Simulator, `web/` en el bundle, overlay nativo y `UIAlertController` de baja. Docs de IA y cierre de README quedan para las fases 10–11.
+---
+
+## Vista previa
+
+*Tema claro — flujos principales del host y de la micro-app.*
+
+| Listado | Nueva meta | Abono |
+|:-------:|:----------:|:-----:|
+| ![Listado de metas](docs/assets/screenshots/metas-de-ahorro.png) | ![Formulario de nueva meta](docs/assets/screenshots/nueva-meta.png) | ![Abono en WebView](docs/assets/screenshots/abonar.png) |
+| Metas, progreso y FAB | Alta en WebView (`create`) | Detalle e importe a abonar |
+
+Apariencia sistema / claro / oscuro en runtime (control en el header nativo).
 
 ---
 
@@ -28,48 +39,41 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 
 - **Monorepo npm** — un `npm install` enlaza `mobile`, `libreria` y `web`
 - **Host CLI** — React Native **0.81.6**, React **19**, Hermes, New Architecture; **sin Expo**
-- **Micro-app local** — `web/` se copia a assets de Android y al bundle iOS; sin servidor ni `fetch`
+- **Micro-app local** — `web/` en assets Android y bundle iOS; sin servidor ni `fetch`
 - **Librería de primer nivel** — TurboModule Kotlin + Objective-C, autolinking, nunca vendored en `mobile/`
-- **Arquitectura congelada** — Clean Architecture feature-first, DI por factory + `extraArgument` de RTK
-- **Kernel testeable** — dominio, puertos y parser Zod cubiertos por Jest
-- **Listado nativo** — RTK + `extraArgument`; persistencia AsyncStorage detrás del puerto `GoalsRepository`; Container-Presenter
-- **Detalle/abono** — WebView inmersivo, `postMessage` Zod, listado sin reload
-- **Toast nativo** — HU 4: `RnSavingsNotifierAdapter` + TurboModule (Toast Android / overlay iOS), no `Alert` de RN
-- **Apariencia** — header único, tokens light/dark, control sistema/claro/oscuro persistido; WebView con `data-theme`
-- **Alta y baja** — FAB + formulario web (`CREATE_REQUESTED`); long-press + diálogo nativo de confirmación
-- **iOS** — Simulator de primer nivel: New Architecture, `web/` en el bundle, overlay y `UIAlertController`
+- **Arquitectura nombrada** — Clean Architecture feature-first, Container-Presenter, factory DI + RTK `extraArgument`, atomic solo donde hay reutilización
+- **Kernel testeable** — dominio, puertos y parser Zod; coverage ≥70%
+- **Listado nativo** — HU 1; persistencia AsyncStorage detrás de `GoalsRepository`
+- **Detalle/abono** — WebView inmersivo, `postMessage` Zod, listado sin reload (HU 2–3)
+- **Confirmación nativa** — HU 4: Toast Android / overlay iOS, no `Alert` de RN
+- **Alta y baja** — FAB + `CREATE_REQUESTED`; long-press + diálogo nativo
+- **iOS Simulator** — mismo producto que Android
 - **OpenSpec** — un change por fase, rama `feat/<change-name>`, PR hacia `main`
 
 ---
 
 ## Funcionalidades
 
-### Implementado (Fases 1–9)
+### Implementado
 
 | Funcionalidad | Estado |
 |---------------|--------|
 | Workspaces `mobile/`, `libreria/`, `web/` | ✅ |
-| Host Android RN 0.81 + New Architecture + Hermes | ✅ |
-| Host iOS RN 0.81 + New Architecture + Hermes (Simulator) | ✅ |
-| WebView `file://` con HTML de `web/` (assets Android / bundle iOS; no es launch screen) | ✅ |
-| Contrato de prueba `WEB_READY` / `DEPOSIT_REQUESTED` | ✅ |
-| API JS `notifyGoalCompleted` / `notifyGoalCreated` / `showConfirmDialog` | ✅ |
-| Esqueleto `mobile/src` (composition root, `core/`, features) | ✅ |
+| Host Android e iOS RN 0.81 + New Architecture + Hermes | ✅ |
+| WebView `file://` con HTML de `web/` (no es launch screen) | ✅ |
 | Dominio `Money` / `Progress` / `SavingsGoal` + tests | ✅ |
-| Puertos `GoalsRepository` / `GoalNotifier` / `ConfirmDialog` y fakes | ✅ |
-| Use cases `GetGoals` y `MakeDeposit` | ✅ |
+| Puertos `GoalsRepository` / `GoalNotifier` / `ConfirmDialog` | ✅ |
+| Use cases `GetGoals`, `MakeDeposit`, `CreateGoal`, `DeleteGoal` | ✅ |
 | Catálogo Zod `postMessage` + `parseBridgeMessage` | ✅ |
-| Store RTK + `extraArgument` (`createAppDependencies`) | ✅ |
+| Store RTK + `extraArgument` | ✅ |
 | Listado nativo HU 1 (nombre / objetivo / acumulado / %) | ✅ |
 | WebView inmersivo de detalle/abono (HU 2) | ✅ |
-| Abono web → `MakeDeposit` → listado sin recargar (HU 3) | ✅ |
-| Toast nativo al completar meta (HU 4, Android) | ✅ |
-| Overlay nativo al completar / registrar meta (iOS) | ✅ |
-| Persistencia AsyncStorage detrás de `GoalsRepository` | ✅ |
-| Títulos únicos (header nativo; listado y web no los repiten) | ✅ |
-| Apariencia sistema / claro / oscuro (persistida; WebView `data-theme`) | ✅ |
-| Alta de meta (FAB → formulario web → Toast nativo) | ✅ |
-| Baja de meta (long-press + confirmación nativa) | ✅ |
+| Abono web → dominio nativo → listado sin recargar (HU 3) | ✅ |
+| Toast / overlay nativo al completar o registrar (HU 4) | ✅ |
+| Persistencia AsyncStorage (lista vacía no se re-siembra) | ✅ |
+| Títulos únicos; apariencia sistema / claro / oscuro | ✅ |
+| Alta (FAB) y baja (long-press + confirmación nativa) | ✅ |
+| Skills, agent y `docs/ia/USO_IA.md` en `mobile/` y `libreria/` | ✅ |
 
 ### Por fase
 
@@ -77,21 +81,17 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 |------|---------|--------|
 | **1** Andamiaje del monorepo | Metro, autolinking, WebView, librería stub | ✅ |
 | **2** Dominio y contratos | `SavingsGoal`, Zod `postMessage`, puertos | ✅ |
-| **3** HU 1 — listado nativo | RTK + listado nombre / objetivo / acumulado / % | ✅ |
+| **3** HU 1 — listado nativo | RTK + listado | ✅ |
 | **4** HU 2–3 — detalle y abono | WebView inmersivo; listado sin recargar | ✅ |
-| **5** HU 4 — nativo real | Toast / notificación al 100% | ✅ |
+| **5** HU 4 — nativo real | Toast / overlay al 100% | ✅ |
 | **6** Persistencia | Adapter `GoalsRepository` (AsyncStorage) | ✅ |
-| **7** UI contemporánea | Títulos únicos, chrome actual, modo oscuro (sistema / claro / oscuro) | ✅ |
-| **8** Alta y baja de metas | FAB + formulario web; long-press + confirmación | ✅ |
-| **9** Entorno iOS | Simulator, bundle `web/`, TurboModule overlay + `UIAlertController` | ✅ |
-| **10** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
-| **11** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
+| **7** UI contemporánea | Header único, chrome, apariencia persistida | ✅ |
+| **8** Alta y baja de metas | FAB + formulario web; long-press | ✅ |
+| **9** Entorno iOS | Simulator, bundle `web/`, TurboModule iOS | ✅ |
+| **10** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | ✅ |
+| **11** Documentación de cierre | README de paquetes, coverage, huecos honestos | ✅ |
 
-Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md).
-
-| Listado | Nueva meta | Abono |
-|---------|------------|-------|
-| ![Listado de metas](docs/assets/screenshots/metas-de-ahorro.png) | ![Formulario de nueva meta](docs/assets/screenshots/nueva-meta.png) | ![Abono en WebView](docs/assets/screenshots/abonar.png) |
+Historias HU 1–4, diagramas y recortes: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md).
 
 ---
 
@@ -104,8 +104,8 @@ Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_E
 | **Community CLI** | `@react-native-community/cli` 20 — sin Expo |
 | **TypeScript** | Strict en `mobile/` y `libreria/` |
 | **Redux Toolkit** | Fuente de verdad aplicativa (`extraArgument` + slice `goals`) |
-| **Zod** | Contrato `postMessage` (`parseBridgeMessage`) y snapshots |
-| **AsyncStorage** | Persistencia de metas detrás de `GoalsRepository` (CLI, no Expo) |
+| **Zod** | Contrato `postMessage` y snapshots |
+| **AsyncStorage** | Persistencia detrás de `GoalsRepository` (CLI, no Expo) |
 | **react-native-webview** | Host de la micro-app local |
 | **TurboModule** | `rn-savings-notifier` (Kotlin + Objective-C) |
 | **Jest + RNTL** | Tests en `mobile/` y `libreria/`; **cero tests en `web/`** |
@@ -115,7 +115,7 @@ Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_E
 
 ## Arquitectura
 
-Capas **dentro de cada feature** (`goals`, `goal-detail`, `notifications`), más un kernel en `core/`.
+Capas **dentro de cada feature** (`goals`, `goal-detail`, `notifications`), más un kernel en `core/`. Patrones nombrados: **Clean Architecture feature-first**, **Container-Presenter**, **DI explícita** (factory, sin IoC), **DI con Redux** (`extraArgument` + listeners), **TurboModule**, **templates inmersivos**, **atomic pragmático** (`MoneyText`, `ProgressBar`).
 
 ```
   Presentation  →  Application  →  Domain
@@ -125,14 +125,14 @@ Capas **dentro de cada feature** (`goals`, `goal-detail`, `notifications`), más
 ```
 
 - **Domain:** `SavingsGoal`, `Money`, `Progress` — sin React, RN ni Redux
-- **Application:** `GetGoals`, `MakeDeposit` y puertos (`GoalsRepository`, `GoalNotifier`)
-- **Infrastructure:** persistencia AsyncStorage (puerto `GoalsRepository`), adapter `postMessage`, adapter TurboModule, slice RTK
+- **Application:** use cases y puertos (`GoalsRepository`, `GoalNotifier`, `ConfirmDialog`)
+- **Infrastructure:** AsyncStorage, adapter `postMessage`, adapter TurboModule, slice RTK
 - **Presentation:** Container-Presenter; el detalle/abono vive en `web/`
-- **DI:** factory en `app/di` inyectada con `thunk.extraArgument`; sin contenedor IoC
+- **DI:** `createAppDependencies()` inyectada con `thunk.extraArgument`
 
-El dominio vive en nativo: la web emite `DEPOSIT_REQUESTED`; `MakeDeposit` decide. No se confirma el abono en la micro-app.
+El dominio vive en nativo: la web emite `DEPOSIT_REQUESTED`; `MakeDeposit` decide.
 
-Detalle: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) · specs en [`openspec/specs/`](openspec/specs/).
+Detalle: [`docs/architecture.md`](docs/architecture.md) · [`docs/runtime-design.md`](docs/runtime-design.md) · [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md).
 
 ---
 
@@ -160,15 +160,46 @@ o iOS Simulator:
 npm run ios
 ```
 
-La app abre el **listado nativo** con 3 metas seed si el almacenamiento está vacío. El FAB **Agregar meta** abre el formulario web de alta; al registrar, un aviso nativo confirma y el listado se actualiza sin recargar. Long-press en una card pide confirmación nativa para borrar; una lista vacía no se re-siembra. El título “Metas de ahorro” vive solo en el header; arriba a la derecha se cicla apariencia. Un tap abre el detalle/abono en WebView. Tras matar la app, metas y apariencia se conservan.
+La app abre el **listado nativo** con 3 metas seed si el almacenamiento está vacío. El FAB abre el formulario web de alta; long-press pide confirmación nativa para borrar. Un tap abre el detalle/abono en WebView. Tras matar la app, metas y apariencia se conservan.
 
 Tras cambiar Kotlin/ObjC hay que **rebuild nativo** (`npm run android` o `npm run ios`); Metro solo no basta.
 
+### Tests y coverage
+
 ```bash
 npm test
+npm run test:coverage
 ```
 
-Cubre dominio, parser Zod (incluye `CREATE_*`), use cases de alta/baja/abono, slice/selectores, repositorio persistido (lista vacía no re-siembra), apariencia, bridge, adapters de notificaciones/confirmación, URI local del WebView, wrappers de `libreria/` y el listado (RNTL), más el smoke de `App.test.tsx`.
+`npm test` cubre dominio, parser Zod, use cases, slice/selectores, persistencia, apariencia, bridge, adapters, URI del WebView, wrappers de `libreria/` y el listado (RNTL). `npm run test:coverage` aplica el umbral **≥70%** en `mobile/` (core declarado) y en `libreria/` (wrappers JS). No hay suite en `web/`.
+
+Workspaces: `npm run test:coverage -w mobile` · `npm run test:coverage -w libreria`.
+
+---
+
+## Catálogo `postMessage`
+
+Envelope `{ type, payload }`. Validación en nativo con Zod. La web no usa `fetch`.
+
+### Web → nativo
+
+| `type` | `payload` | Cuándo |
+|--------|-----------|--------|
+| `WEB_READY` | `{ goalId }` | Load de la micro-app |
+| `DEPOSIT_REQUESTED` | `{ goalId, amount }` | Usuario confirma abono |
+| `CREATE_REQUESTED` | `{ name, targetAmount }` | Usuario confirma el alta |
+
+Se usa `DEPOSIT_REQUESTED` (no “confirmado en web”) porque **el dominio vive en nativo**.
+
+### Nativo → web
+
+| `type` | `payload` | Cuándo |
+|--------|-----------|--------|
+| `SESSION_BOOTSTRAP` | `{ sessionId, goalId, userInfo, mode, goal? }` | Tras `WEB_READY`; `mode`: `deposit` \| `create` |
+| `DEPOSIT_SUCCEEDED` | `{ goalId, depositedAmount, progressPercent, isCompleted }` | Use case OK |
+| `DEPOSIT_FAILED` | `{ goalId, reason }` | Monto u otra regla |
+| `CREATE_SUCCEEDED` | `{ goal }` | Alta OK |
+| `CREATE_FAILED` | `{ reason }` | Nombre u objetivo inválido |
 
 ---
 
@@ -176,52 +207,54 @@ Cubre dominio, parser Zod (incluye `CREATE_*`), use cases de alta/baja/abono, sl
 
 | Documento | Contenido |
 |-----------|-----------|
-| [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) | Alcance HU 1–4, arquitectura, contrato `postMessage`, fases |
-| [`openspec/specs/`](openspec/specs/) | Specs vigentes: workspaces, host, micro-app, librería, dominio, contrato `postMessage`, listado, notificaciones, persistencia, apariencia |
-| [`openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/`](openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/) | Change archivado de Fase 1 |
-| [`openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/`](openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/) | Change archivado de Fase 2 |
-| [`openspec/changes/archive/2026-08-20-fase-3-redux-hu-1/`](openspec/changes/archive/2026-08-20-fase-3-redux-hu-1/) | Change archivado de Fase 3 |
-| [`openspec/changes/archive/2026-08-20-fase-4-webview-abono/`](openspec/changes/archive/2026-08-20-fase-4-webview-abono/) | Change archivado de Fase 4 |
-| [`openspec/changes/archive/2026-08-20-fase-5-hu-4-nativo-real/`](openspec/changes/archive/2026-08-20-fase-5-hu-4-nativo-real/) | Change archivado de Fase 5 |
-| [`openspec/changes/archive/2026-08-20-fase-6-persistencia/`](openspec/changes/archive/2026-08-20-fase-6-persistencia/) | Change archivado de Fase 6 |
-| [`openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/`](openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/) | Change archivado de Fase 7 |
-| [`openspec/changes/archive/2026-08-21-fase-8-alta-baja-metas/`](openspec/changes/archive/2026-08-21-fase-8-alta-baja-metas/) | Change archivado de Fase 8 |
-| [`openspec/changes/archive/2026-08-21-fase-9-ios-host/`](openspec/changes/archive/2026-08-21-fase-9-ios-host/) | Change archivado de Fase 9 |
-| [`mobile/README.md`](mobile/README.md) | Notas del template CLI (Metro, reload) |
+| [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) | Alcance HU 1–4, arquitectura congelada, fases |
+| [`docs/architecture.md`](docs/architecture.md) | Capas, features, DI, patrones |
+| [`docs/runtime-design.md`](docs/runtime-design.md) | Bridge, store, persistencia, librería en runtime |
+| [`docs/testing-strategy.md`](docs/testing-strategy.md) | Tests, coverage, qué no se testea |
+| [`docs/ia/USO_IA.md`](docs/ia/USO_IA.md) | SDD, Cursor Grok 4.6, rechazos, agentes por fase |
+| [`AGENTS.md`](AGENTS.md) | Guardrails de importación |
+| [`openspec/specs/`](openspec/specs/) | Specs vigentes |
+| [`mobile/README.md`](mobile/README.md) | Metro, Android, iOS, tests del host |
+| [`libreria/README.md`](libreria/README.md) | Install, autolinking, API TurboModule |
+| [`openspec/changes/archive/`](openspec/changes/archive/) | Changes archivados (Fases 1–11) |
+| [`openspec/changes/archive/2026-08-21-fase-10-ia-docs-cierre/`](openspec/changes/archive/2026-08-21-fase-10-ia-docs-cierre/) | Change archivado de Fases 10–11 |
 
 ---
 
 ## Uso de IA
 
-> **Enfoque:** desarrollo **spec-driven** con **OpenSpec**: la arquitectura (Clean Architecture feature-first, TurboModule, bridge `postMessage`), el alcance por fase y los criterios de aceptación viven en el plan y en las specs. La IA **acelera** andamiaje, implementación y documentación **a partir de ese contrato**. Cada entrega se revisa antes de integrar: diff alineado a `tasks.md`, app Android que arranca, y decisión explícita de merge.
+> **Enfoque:** desarrollo **spec-driven** con **OpenSpec**. El autor definió Clean Architecture feature-first, Container-Presenter, DI explícita + Redux `extraArgument`, TurboModule y el alcance por fase. La IA **acelera** implementación y docs **dentro de ese contrato**. Herramienta: **Cursor** con **Cursor Grok 4.6**; el effort varía por fase; **un agente independiente por fase**.
 
-### Por qué SDD + OpenSpec
+Detalle (prompts, skills, tabla de fases, **qué se rechazó**): **[`docs/ia/USO_IA.md`](docs/ia/USO_IA.md)**.
 
-**SDD (Spec-Driven Development)** acota el trabajo de la IA: implementa contra specs y tareas, no contra prompts abiertos. **OpenSpec** materializa el flujo (proponer → aplicar → archivar). **Context7** ancla al modelo a documentación actual de React Native, Metro y la librería nativa.
+| Responsabilidad | Autor | IA |
+|-----------------|-------|-----|
+| Arquitectura, patrones y recortes | ✅ | Sugerencias acotadas |
+| Merge a `main` | ✅ | — |
+| Rechazar o corregir output | ✅ | — |
+| Código/tests/docs desde specs | — | ✅ |
 
-### Quién decide qué
+---
 
-| Responsabilidad | Autor (criterio humano) | IA (asistente) |
-|-----------------|-------------------------|----------------|
-| Arquitectura, patrones y recortes de alcance | ✅ Definición y refinamiento | Sugerencias / implementación acotada |
-| Alcance de producto y prioridades | ✅ | — |
-| Aprobación de merge a `main` | ✅ | — |
-| Rechazar o corregir output incorrecto | ✅ | — |
-| Propuesta de código/tests/docs desde specs | — | ✅ |
-| Ejecutar tareas de `tasks.md` | — | ✅ |
+## Huecos honestos
 
-### Cómo se traza en Git
+| Hoy | Si hiciera falta |
+|-----|------------------|
+| No hay **editar meta** | Mismo WebView + tipo `UPDATE_REQUESTED` y use case; el puerto ya persiste |
+| **App Store / TestFlight / dispositivo físico** no son criterio de merge | Firma, perfil y `run-ios --device`; el Simulator ya cubre el producto |
+| **`web/` sin tests** | El handshake se cubre en el host; una suite web sería opt-in y no sustituye Zod en nativo |
+| **Toast/overlay sin tests instrumentados** | La demo en emulador/Simulator basta; los wrappers JS de `libreria/` sí se testean |
 
-Un change OpenSpec ≈ una rama `feat/<change-name>` ≈ un PR → `main`. El historial refleja **entregas incrementales revisadas**, no un volcado único.
+Fuera de alcance: backend, auth, PII, Expo.
 
 ---
 
 ## Git workflow
 
-`main` es la rama de integración. Cada change de OpenSpec se implementa en su propia rama y entra con pull request.
+`main` es la rama de integración. Cada change de OpenSpec vive en `feat/<change-name>` y entra con pull request.
 
 1. Actualizar `main` desde `origin/main`.
-2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-10-ia-gobernada`).
+2. Crear `feat/<change-name>` desde `main`.
 3. Commits convencionales (`feat`, `fix`, `test`, `docs`, `chore`) y push en esa rama.
 4. Abrir un PR hacia `main` y mergearlo ahí.
 

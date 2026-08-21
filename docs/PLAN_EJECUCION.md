@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage), `fase-7-ui-contemporanea` (títulos únicos y apariencia), `fase-8-alta-baja-metas` (FAB + baja) y `fase-9-ios-host` (Simulator + TurboModule iOS). Las fases 10–11 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage), `fase-7-ui-contemporanea` (títulos únicos y apariencia), `fase-8-alta-baja-metas` (FAB + baja), `fase-9-ios-host` (Simulator + TurboModule iOS) y `fase-10-ia-docs-cierre` (IA gobernada + documentación de entrega). Las once fases del plan están aplicadas.
 
 ---
 
@@ -453,18 +453,27 @@ F10 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F9 iOS n
 
 ### Fase 10 — IA gobernada
 
+**Vehículo:** change `fase-10-ia-docs-cierre` (junto con Fase 11).
+
 En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
 
-1. Skill usada de verdad: p. ej. “handler `postMessage` + Zod + test” o “slice RTK + selector + test”.
+1. Skills de producto: handler `postMessage` + Zod + test; slice RTK + selector + test; wrappers TurboModule + test.
 2. Agent: reviewer de boundaries (domain sin RN, coverage, no `any`).
 3. `docs/ia/USO_IA.md`: qué generó IA, qué se escribió a mano, prompts, **qué se rechazó o corrigió**.
 
+**Cierre:** skills y agent visibles en las capas evaluadas; documento de uso de IA. **Estado:** aplicada y archivada.
+
 ### Fase 11 — Documentación y cierre
 
-- README raíz: setup iOS/Android (Fase 9 ya deja el run path iOS), Node/RN 0.81, tests/coverage, diagrama, catálogo `postMessage`, uso de IA, huecos honestos.
+**Vehículo:** el mismo change `fase-10-ia-docs-cierre`.
+
+- README raíz: setup iOS/Android, Node/RN 0.81, tests/coverage, diagrama, catálogo `postMessage`, uso de IA, huecos honestos, Vista previa light.
 - README de `libreria/` y `mobile/`.
+- `docs/architecture.md`, `docs/runtime-design.md`, `docs/testing-strategy.md`.
 - Commits convencionales incrementales (`feat`, `fix`, `test`, `docs`, `chore`) en ramas `feat/<change-name>`.
 - Checklist del producto (sección 11).
+
+**Cierre:** documentación de entrega alineada al producto. **Estado:** aplicada y archivada.
 
 ---
 
@@ -507,11 +516,11 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 - [x] `libreria/`: nativo real (Toast Android), tests JS, consumida por `mobile/`.
 - [x] Alta y baja de metas (FAB + WebView create; long-press + confirmación nativa).
 - [x] Host iOS (Simulator): New Architecture, `web/` en el bundle, overlay y `UIAlertController`.
-- [ ] `mobile/`: tests y skill/agent.
-- [ ] Coverage del core en `libreria/` y `mobile/` (≥70% dominio).
-- [ ] TypeScript sin `any` injustificado.
-- [ ] Skill + Agent + `docs/ia/USO_IA.md` en las capas del producto.
-- [ ] README raíz: estructura, setup, arquitectura, catálogo, uso de IA.
+- [x] `mobile/`: tests y skill/agent.
+- [x] Coverage del core en `libreria/` y `mobile/` (≥70% dominio).
+- [x] TypeScript sin `any` injustificado.
+- [x] Skill + Agent + `docs/ia/USO_IA.md` en las capas del producto.
+- [x] README raíz: estructura, setup, arquitectura, catálogo, uso de IA.
 
 ---
 
@@ -529,7 +538,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia`, `fase-7-ui-contemporanea`, `fase-8-alta-baja-metas` y `fase-9-ios-host` están **archivados** (proposal, specs, design, tasks aplicados).
+Los changes `fase-1-andamiaje-monorepo` … `fase-10-ia-docs-cierre` están **archivados** (proposal, specs, design, tasks aplicados). Fases 10 y 11 se cerraron juntas en `fase-10-ia-docs-cierre`.
 
 | Fase | Change | Estado |
 | --- | --- | --- |
@@ -542,4 +551,4 @@ Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fas
 | 7 | `fase-7-ui-contemporanea` | Archivado. Títulos únicos, chrome contemporáneo, apariencia persistida. |
 | 8 | `fase-8-alta-baja-metas` | Archivado. FAB + formulario web de alta; long-press + confirmación de baja. |
 | 9 | `fase-9-ios-host` | Archivado. Simulator, bundle `web/`, overlay y `UIAlertController`. |
-| 10–11 | Changes nuevos al arrancar cada fase | IA gobernada (10) y documentación/cierre (11) |
+| 10–11 | `fase-10-ia-docs-cierre` | Archivado. IA gobernada + documentación y cierre (skills, agent, README, coverage). |

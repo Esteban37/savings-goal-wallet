@@ -4,7 +4,8 @@
   "description": "Native savings-goal notifier for the Savings Goal Wallet host",
   "main": "src/index",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "codegenConfig": {
     "name": "RnSavingsNotifierSpec",
