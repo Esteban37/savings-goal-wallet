@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "Native savings-goal notifier for the Savings Goal Wallet host",
   "main": "src/index",
+  "scripts": {
+    "test": "jest"
+  },
   "codegenConfig": {
     "name": "RnSavingsNotifierSpec",
     "type": "modules",
@@ -17,6 +20,15 @@
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/runtime": "^7.25.0",
+    "@react-native/babel-preset": "0.81.6",
+    "@types/jest": "^29.5.13",
+    "jest": "^29.6.3",
+    "react": "19.1.4",
+    "react-native": "0.81.6"
   },
   "create-react-native-library": {
     "type": "turbo-module",
