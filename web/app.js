@@ -1,5 +1,6 @@
-const PLACEHOLDER_GOAL_ID = 'goal-scaffold';
-const TEST_DEPOSIT_AMOUNT = 10000;
+const HANDSHAKE_GOAL_ID = 'pending';
+
+let bootstrappedGoalId = null;
 
 function postToHost(type, payload) {
   const envelope = JSON.stringify({ type: type, payload: payload });
@@ -11,16 +12,73 @@ function postToHost(type, payload) {
   }
 }
 
+function $(id) {
+  return document.getElementById(id);
+}
+
+function formatPesos(amount) {
+  return String(Math.trunc(amount));
+}
+
+function showError(message) {
+  const errorEl = $('error');
+  errorEl.textContent = message;
+  errorEl.classList.remove('hidden');
+}
+
+function hideError() {
+  const errorEl = $('error');
+  errorEl.textContent = '';
+  errorEl.classList.add('hidden');
+}
+
+function renderGoal(goal) {
+  $('waiting').classList.add('hidden');
+  $('detail').classList.remove('hidden');
+  $('goal-name').textContent = goal.name;
+  $('target-amount').textContent = formatPesos(goal.targetAmount);
+  $('deposited-amount').textContent = formatPesos(goal.depositedAmount);
+  $('progress-percent').textContent = String(goal.progressPercent);
+}
+
+function onHostMessage(message) {
+  if (!message || typeof message !== 'object') {
+    return;
+  }
+  if (message.type === 'SESSION_BOOTSTRAP' && message.payload && message.payload.goal) {
+    bootstrappedGoalId = message.payload.goalId;
+    hideError();
+    renderGoal(message.payload.goal);
+    return;
+  }
+  if (message.type === 'DEPOSIT_SUCCEEDED' && message.payload) {
+    hideError();
+    $('deposited-amount').textContent = formatPesos(message.payload.depositedAmount);
+    $('progress-percent').textContent = String(message.payload.progressPercent);
+    return;
+  }
+  if (message.type === 'DEPOSIT_FAILED') {
+    showError('No se pudo aplicar el abono. Revisa el monto e inténtalo de nuevo.');
+  }
+}
+
+window.__onHostMessage = onHostMessage;
+
 window.addEventListener('load', function onLoad() {
-  postToHost('WEB_READY', { goalId: PLACEHOLDER_GOAL_ID });
+  postToHost('WEB_READY', { goalId: HANDSHAKE_GOAL_ID });
 });
 
-const depositButton = document.getElementById('deposit-button');
+const depositButton = $('deposit-button');
 if (depositButton) {
   depositButton.addEventListener('click', function onDepositClick() {
+    if (!bootstrappedGoalId) {
+      return;
+    }
+    const rawAmount = $('amount-input').value;
+    const amount = Number(rawAmount);
     postToHost('DEPOSIT_REQUESTED', {
-      goalId: PLACEHOLDER_GOAL_ID,
-      amount: TEST_DEPOSIT_AMOUNT,
+      goalId: bootstrappedGoalId,
+      amount: amount,
     });
   });
 }
