@@ -9,6 +9,13 @@
     resolve(nil);
 }
 
+- (void)notifyGoalCreated:(NSString *)goalName
+                  resolve:(RCTPromiseResolveBlock)resolve
+                   reject:(RCTPromiseRejectBlock)reject
+{
+    resolve(nil);
+}
+
 - (void)showConfirmDialog:(NSString *)title
                   message:(NSString *)message
                   resolve:(RCTPromiseResolveBlock)resolve

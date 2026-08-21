@@ -79,7 +79,7 @@
     </style>
   </head>
   <body>
-    <p id="waiting" class="muted">Cargando meta…</p>
+    <p id="waiting" class="muted">Cargando…</p>
     <section id="detail" class="card hidden">
       <h1>Abonar</h1>
       <p>Objetivo: <span id="target-amount"></span></p>
@@ -89,6 +89,15 @@
       <input id="amount-input" type="number" min="1" step="1" inputmode="numeric" />
       <button id="deposit-button" type="button">Abonar</button>
       <p id="error" class="error hidden"></p>
+    </section>
+    <section id="create" class="card hidden">
+      <label for="name-input">Nombre</label>
+      <input id="name-input" type="text" autocomplete="off" />
+      <label for="target-input">Objetivo (pesos)</label>
+      <input id="target-input" type="number" min="1" step="1" inputmode="numeric" />
+      <button id="create-button" type="button">Crear meta</button>
+      <p id="create-error" class="error hidden"></p>
+      <p id="create-success" class="muted hidden"></p>
     </section>
     <script src="./app.js"></script>
   </body>

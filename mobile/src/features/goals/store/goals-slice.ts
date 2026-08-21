@@ -42,6 +42,17 @@ const goalsSlice = createSlice({
         state.items[index] = action.payload;
       }
     },
+    goalCreated(state, action: PayloadAction<GoalSnapshot>) {
+      const index = state.items.findIndex(item => item.id === action.payload.id);
+      if (index >= 0) {
+        state.items[index] = action.payload;
+        return;
+      }
+      state.items.push(action.payload);
+    },
+    goalDeleted(state, action: PayloadAction<string>) {
+      state.items = state.items.filter(item => item.id !== action.payload);
+    },
   },
   extraReducers: builder => {
     builder
@@ -60,5 +71,5 @@ const goalsSlice = createSlice({
   },
 });
 
-export const { depositApplied } = goalsSlice.actions;
+export const { depositApplied, goalCreated, goalDeleted } = goalsSlice.actions;
 export const goalsReducer = goalsSlice.reducer;

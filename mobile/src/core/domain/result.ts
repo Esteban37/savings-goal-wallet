@@ -12,6 +12,7 @@ export function err<E>(error: E): Result<never, E> {
 
 export type DomainError =
   | 'invalid-amount'
+  | 'invalid-name'
   | 'invalid-goal'
   | 'goal-not-found'
   | 'invalid-message';

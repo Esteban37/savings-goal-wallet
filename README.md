@@ -20,7 +20,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | `libreria/` | `rn-savings-notifier` | TurboModule: aviso al completar una meta y diálogo de confirmación |
 | `web/` | `web` | Micro-app HTML/JS estática cargada en el WebView (`file://`) |
 
-**Fase actual:** Fase 7 — UI contemporánea. Títulos únicos en el header nativo, chrome actualizado y apariencia sistema/claro/oscuro (persistida). Docs de IA y cierre de README quedan para las fases 8–9.
+**Fase actual:** Fase 8 — alta y baja de metas. FAB abre el formulario web de alta; Toast nativo al registrar; long-press con confirmación nativa para borrar. Docs de IA y cierre de README quedan para las fases 9–10.
 
 ---
 
@@ -36,13 +36,14 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 - **Detalle/abono** — WebView inmersivo, `postMessage` Zod, listado sin reload
 - **Toast nativo** — HU 4: `RnSavingsNotifierAdapter` + TurboModule Android (`Toast`), no `Alert` de RN
 - **Apariencia** — header único, tokens light/dark, control sistema/claro/oscuro persistido; WebView con `data-theme`
+- **Alta y baja** — FAB + formulario web (`CREATE_REQUESTED`); long-press + diálogo nativo de confirmación
 - **OpenSpec** — un change por fase, rama `feat/<change-name>`, PR hacia `main`
 
 ---
 
 ## Funcionalidades
 
-### Implementado (Fases 1–7)
+### Implementado (Fases 1–8)
 
 | Funcionalidad | Estado |
 |---------------|--------|
@@ -50,7 +51,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | Host Android RN 0.81 + New Architecture + Hermes | ✅ |
 | WebView `file://` con HTML de `web/` (assets; no es launch screen) | ✅ |
 | Contrato de prueba `WEB_READY` / `DEPOSIT_REQUESTED` | ✅ |
-| API JS `notifyGoalCompleted` / `showConfirmDialog` (stubs) | ✅ |
+| API JS `notifyGoalCompleted` / `notifyGoalCreated` / `showConfirmDialog` | ✅ |
 | Esqueleto `mobile/src` (composition root, `core/`, features) | ✅ |
 | Dominio `Money` / `Progress` / `SavingsGoal` + tests | ✅ |
 | Puertos `GoalsRepository` / `GoalNotifier` / `ConfirmDialog` y fakes | ✅ |
@@ -64,6 +65,8 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | Persistencia AsyncStorage detrás de `GoalsRepository` | ✅ |
 | Títulos únicos (header nativo; listado y web no los repiten) | ✅ |
 | Apariencia sistema / claro / oscuro (persistida; WebView `data-theme`) | ✅ |
+| Alta de meta (FAB → formulario web → Toast nativo) | ✅ |
+| Baja de meta (long-press + confirmación nativa) | ✅ |
 
 ### Por fase
 
@@ -76,8 +79,9 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | **5** HU 4 — nativo real | Toast / notificación al 100% | ✅ |
 | **6** Persistencia | Adapter `GoalsRepository` (AsyncStorage) | ✅ |
 | **7** UI contemporánea | Títulos únicos, chrome actual, modo oscuro (sistema / claro / oscuro) | ✅ |
-| **8** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
-| **9** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
+| **8** Alta y baja de metas | FAB + formulario web; long-press + confirmación | ✅ |
+| **9** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
+| **10** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
 
 Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md).
 
@@ -141,13 +145,13 @@ En otra terminal:
 npm run android
 ```
 
-La app abre el **listado nativo** con 3 metas seed si el almacenamiento está vacío. El título “Metas de ahorro” vive solo en el header; arriba a la derecha se cicla apariencia (sistema / claro / oscuro). Un tap abre el detalle en WebView local (sin repetir el nombre como `h1`); un abono actualiza la store y el listado al volver atrás, sin recargar. Tras matar la app, el acumulado y la preferencia de apariencia se conservan. Si el abono llega al 100%, Android muestra un **Toast nativo** con el nombre de la meta.
+La app abre el **listado nativo** con 3 metas seed si el almacenamiento está vacío. El FAB **Agregar meta** abre el formulario web de alta; al registrar, un Toast nativo confirma y el listado se actualiza sin recargar. Long-press en una card pide confirmación nativa para borrar; una lista vacía no se re-siembra. El título “Metas de ahorro” vive solo en el header; arriba a la derecha se cicla apariencia. Un tap abre el detalle/abono en WebView. Tras matar la app, metas y apariencia se conservan.
 
 ```bash
 npm test
 ```
 
-Cubre dominio, parser Zod, use cases, slice/selectores, repositorio persistido, apariencia (`resolveScheme` + persistencia), bridge de abono, adapter de notificaciones, wrappers de `libreria/` y el listado (RNTL), más el smoke de `App.test.tsx`.
+Cubre dominio, parser Zod (incluye `CREATE_*`), use cases de alta/baja/abono, slice/selectores, repositorio persistido (lista vacía no re-siembra), apariencia, bridge, adapters de notificaciones/confirmación, wrappers de `libreria/` y el listado (RNTL), más el smoke de `App.test.tsx`.
 
 iOS del template existe; el cierre de Fase 1 es **Android**.
 
@@ -166,6 +170,7 @@ iOS del template existe; el cierre de Fase 1 es **Android**.
 | [`openspec/changes/archive/2026-08-20-fase-5-hu-4-nativo-real/`](openspec/changes/archive/2026-08-20-fase-5-hu-4-nativo-real/) | Change archivado de Fase 5 |
 | [`openspec/changes/archive/2026-08-20-fase-6-persistencia/`](openspec/changes/archive/2026-08-20-fase-6-persistencia/) | Change archivado de Fase 6 |
 | [`openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/`](openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/) | Change archivado de Fase 7 |
+| [`openspec/changes/archive/2026-08-21-fase-8-alta-baja-metas/`](openspec/changes/archive/2026-08-21-fase-8-alta-baja-metas/) | Change archivado de Fase 8 |
 | [`mobile/README.md`](mobile/README.md) | Notas del template CLI (Metro, reload) |
 
 ---
@@ -200,7 +205,7 @@ Un change OpenSpec ≈ una rama `feat/<change-name>` ≈ un PR → `main`. El hi
 `main` es la rama de integración. Cada change de OpenSpec se implementa en su propia rama y entra con pull request.
 
 1. Actualizar `main` desde `origin/main`.
-2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-8-ia-gobernada`).
+2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-9-ia-gobernada`).
 3. Commits convencionales (`feat`, `fix`, `test`, `docs`, `chore`) y push en esa rama.
 4. Abrir un PR hacia `main` y mergearlo ahí.
 

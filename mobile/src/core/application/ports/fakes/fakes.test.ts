@@ -67,4 +67,29 @@ describe('port fakes', () => {
 
     expect(mockNotifier.calls).toEqual(expectedX);
   });
+
+  it('removes one of two seeded goals', async () => {
+    const mockRepository = new InMemoryGoalsRepository([
+      seedGoal('g1', 10000),
+      seedGoal('g2', 0),
+    ]);
+
+    await mockRepository.remove('g1');
+    const actualList = await mockRepository.list();
+    const actualMissing = await mockRepository.getById('g1');
+    const expectedRemaining = 'g2';
+
+    expect(actualList).toHaveLength(1);
+    expect(actualList[0]?.id).toBe(expectedRemaining);
+    expect(actualMissing).toBeNull();
+  });
+
+  it('records created-goal calls on the no-op fake', async () => {
+    const mockNotifier = new NoopGoalNotifier();
+    await mockNotifier.notifyGoalCreated('Viaje');
+    const expectedX = ['Viaje'];
+
+    expect(mockNotifier.createdCalls).toEqual(expectedX);
+  });
 });
+

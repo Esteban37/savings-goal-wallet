@@ -28,5 +28,5 @@ export function GoalDetailScreen({
     return <Text>Meta no encontrada</Text>;
   }
 
-  return <GoalDetailContainer goalId={goalId} colorScheme={resolvedScheme} />;
+  return <GoalDetailContainer mode="deposit" goalId={goalId} colorScheme={resolvedScheme} />;
 }

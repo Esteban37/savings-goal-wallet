@@ -42,7 +42,7 @@ export function createPersistedGoalsRepository(deps: {
       return null;
     }
     const envelope = persistedGoalsEnvelopeSchema.safeParse(parsed);
-    if (!envelope.success || envelope.data.goals.length === 0) {
+    if (!envelope.success) {
       return null;
     }
     const goals: SavingsGoal[] = [];
@@ -59,7 +59,10 @@ export function createPersistedGoalsRepository(deps: {
   async function hydrate(): Promise<void> {
     const raw = await deps.store.getItem(GOALS_STORAGE_KEY);
     const loaded = parseStoredGoals(raw);
-    cache = loaded ? new InMemoryGoalsRepository(loaded) : await writeSeed();
+    cache =
+      loaded === null
+        ? await writeSeed()
+        : new InMemoryGoalsRepository(loaded);
   }
 
   async function ensureHydrated(): Promise<InMemoryGoalsRepository> {
@@ -85,6 +88,11 @@ export function createPersistedGoalsRepository(deps: {
     async save(goal: SavingsGoal): Promise<void> {
       const memory = await ensureHydrated();
       await memory.save(goal);
+      await persistAll(await memory.list());
+    },
+    async remove(id: string): Promise<void> {
+      const memory = await ensureHydrated();
+      await memory.remove(id);
       await persistAll(await memory.list());
     },
   };

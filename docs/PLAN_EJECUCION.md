@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage) y `fase-7-ui-contemporanea` (títulos únicos y apariencia). Las fases 8–9 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage), `fase-7-ui-contemporanea` (títulos únicos y apariencia) y `fase-8-alta-baja-metas` (FAB + baja). Las fases 9–10 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -215,6 +215,7 @@ Un solo envelope: `{ type, payload }` JSON string. Validación en nativo con **Z
 | --- | --- | --- |
 | `WEB_READY` | `{ goalId: string }` | Load de la micro-app (ya en scaffold Fase 1) |
 | `DEPOSIT_REQUESTED` | `{ goalId: string, amount: number }` | Usuario confirma abono en la web |
+| `CREATE_REQUESTED` | `{ name: string, targetAmount: number }` | Usuario confirma el alta en la web (Fase 8) |
 
 Una alternativa sería emitir `DEPOSIT_CONFIRMED` desde la web. Se usa `DEPOSIT_REQUESTED` porque **el dominio vive en nativo**: la web pide, `MakeDeposit` decide. El README documenta el alias y el trade-off.
 
@@ -222,11 +223,13 @@ Una alternativa sería emitir `DEPOSIT_CONFIRMED` desde la web. Se usa `DEPOSIT_
 
 | `type` | `payload` | Cuándo |
 | --- | --- | --- |
-| `SESSION_BOOTSTRAP` | `{ sessionId, goalId, userInfo, goal }` | Tras `WEB_READY` (o al inyectar al cargar) |
+| `SESSION_BOOTSTRAP` | `{ sessionId, goalId, userInfo, mode, goal? }` | Tras `WEB_READY`. `mode` es `deposit` o `create`; `goal` solo en `deposit` |
 | `DEPOSIT_SUCCEEDED` | `{ goalId, depositedAmount, progressPercent, isCompleted }` | Use case OK; la web actualiza su UI local |
 | `DEPOSIT_FAILED` | `{ goalId, reason }` | Monto inválido u otra regla |
+| `CREATE_SUCCEEDED` | `{ goal }` | Alta OK; `goal` incluye id, name, targetAmount, depositedAmount, progressPercent |
+| `CREATE_FAILED` | `{ reason }` | Nombre o objetivo inválido |
 
-`goal` en bootstrap incluye `id`, `name`, `targetAmount`, `depositedAmount`, `progressPercent` para que la micro-app no invente estado.
+`goal` en bootstrap de abono incluye `id`, `name`, `targetAmount`, `depositedAmount`, `progressPercent` para que la micro-app no invente estado.
 
 Flujo HU 2–3 (sin recargar el listado):
 
@@ -324,10 +327,10 @@ F1 andamiaje ──► F2 dominio+contratos ──► F3 HU1 listado
                          │                    │              │
                          └────────────────────┴──────┬───────┘
                                                      ▼
-                                               F8 IA ──► F9 docs/cierre
+                                        F8 alta/baja ──► F9 IA ──► F10 docs/cierre
 ```
 
-F8 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F7 UI no empieza hasta que existan listado y detalle (F4). F6 no empieza hasta que el puerto `GoalsRepository` esté ejercido por InMemory.
+F9 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F8 alta/baja no empieza hasta persistencia y UI (F6–F7). F7 UI no empieza hasta que existan listado y detalle (F4). F6 no empieza hasta que el puerto `GoalsRepository` esté ejercido por InMemory.
 
 ### Fase 1 — Andamiaje del monorepo
 
@@ -413,11 +416,27 @@ F8 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F7 UI no 
 - Un solo título por pantalla (header nativo); el listado y la micro-app no lo repiten.
 - La micro-app sigue el esquema resuelto con `data-theme` (sin nuevo tipo `postMessage`).
 
-**No hace:** skills/agent ni `docs/ia/USO_IA.md` (Fase 8); cierre completo de README (Fase 9).
+**No hace:** alta/baja de metas (Fase 8); skills/agent ni `docs/ia/USO_IA.md` (Fase 9); cierre completo de README (Fase 10).
 
 **Cierre:** listado y detalle con chrome contemporáneo; modo oscuro persistido o siguiendo el OS. **Estado:** aplicada y archivada.
 
-### Fase 8 — IA gobernada
+### Fase 8 — Alta y baja de metas
+
+**Vehículo:** change `fase-8-alta-baja-metas`.
+
+**Hace**
+
+- FAB en el listado nativo que abre la micro-app en modo `create` (mismo `postMessage` que el abono).
+- Formulario web (nombre + objetivo en pesos enteros; acumulado 0); `CREATE_REQUESTED` → `CreateGoal` → listado sin recargar.
+- Toast nativo `notifyGoalCreated` al registrar.
+- Long-press en la card → `showConfirmDialog` → `DeleteGoal`. Cancelar no borra.
+- Lista vacía persistida no se re-siembra.
+
+**No hace:** editar meta; skills/agent ni `docs/ia/USO_IA.md` (Fase 9); cierre completo de README (Fase 10).
+
+**Cierre:** alta desde FAB + web; baja con confirmación nativa; kill/relaunch conserva el conjunto (incluida lista vacía). **Estado:** aplicada y archivada.
+
+### Fase 9 — IA gobernada
 
 En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
 
@@ -425,7 +444,7 @@ En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
 2. Agent: reviewer de boundaries (domain sin RN, coverage, no `any`).
 3. `docs/ia/USO_IA.md`: qué generó IA, qué se escribió a mano, prompts, **qué se rechazó o corrigió**.
 
-### Fase 9 — Documentación y cierre
+### Fase 10 — Documentación y cierre
 
 - README raíz: setup iOS/Android, Node/RN 0.81, tests/coverage, diagrama, catálogo `postMessage`, uso de IA, huecos honestos.
 - README de `libreria/` y `mobile/`.
@@ -453,7 +472,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 ## 10. Recorrido de demo
 
-- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast nativo → kill/relaunch conserva acumulado → apariencia sistema/claro/oscuro (header único).
+- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast nativo → kill/relaunch conserva acumulado → apariencia sistema/claro/oscuro (header único) → FAB alta de meta → long-press baja con confirmación.
 - **Arquitectura a mostrar:** feature-first vs capas globales, TurboModule vs NativeModule, `DEPOSIT_REQUESTED` vs confirmar en web, `extraArgument` vs IoC, atomic mínimo vs design system.
 - **IA gobernada:** skill/agent y un rechazo concreto (p. ej. no copiar nativo a `mobile/`, no `any` en el parser, no Alert de RN).
 - **Puntos de diseño:** autolinking/Metro, boundaries, listener HU 4, por qué Redux si el WebView ya tiene UI.
@@ -471,6 +490,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 - [x] `postMessage` bidireccional con contrato tipado (Zod).
 - [x] Store actualizado desde la web (HU 3).
 - [x] `libreria/`: nativo real (Toast Android), tests JS, consumida por `mobile/`.
+- [x] Alta y baja de metas (FAB + WebView create; long-press + confirmación nativa).
 - [ ] `mobile/`: tests y skill/agent.
 - [ ] Coverage del core en `libreria/` y `mobile/` (≥70% dominio).
 - [ ] TypeScript sin `any` injustificado.
@@ -483,7 +503,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 - Backend, auth, tokens, PII.
 - Expo, Yarn/pnpm (salvo que npm workspaces bloquee el install).
-- CRUD completo de metas (crear/editar/borrar) salvo sobra **después** de HU 4.
+- Editar metas. Crear y borrar son Fase 8 (FAB + formulario web + long-press con confirmación).
 - Design system con atoms vacíos, navegación nativa tipo Fragments/SwiftUI app, o bus de eventos aparte de RTK.
 - Tests instrumentados de Toast como criterio de cierre (la demo en dispositivo basta; el JS de la librería sí se testea).
 
@@ -493,7 +513,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia` y `fase-7-ui-contemporanea` están **archivados** (proposal, specs, design, tasks aplicados).
+Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia`, `fase-7-ui-contemporanea` y `fase-8-alta-baja-metas` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
@@ -504,4 +524,5 @@ Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fas
 | 5 | `fase-5-hu-4-nativo-real` | Archivado. Toast nativo Android, adapter y tests JS de la librería. |
 | 6 | `fase-6-persistencia` | Archivado. AsyncStorage detrás de `GoalsRepository`, seed-if-empty. |
 | 7 | `fase-7-ui-contemporanea` | Archivado. Títulos únicos, chrome contemporáneo, apariencia persistida. |
-| 8–9 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
+| 8 | `fase-8-alta-baja-metas` | Archivado. FAB + formulario web de alta; long-press + confirmación de baja. |
+| 9–10 | Changes nuevos al arrancar cada fase | IA gobernada (9) y documentación/cierre (10) |

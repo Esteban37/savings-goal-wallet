@@ -11,6 +11,7 @@ export function GoalListScreen({ navigation }: GoalListScreenProps) {
   return (
     <GoalListContainer
       onGoalPress={goalId => navigation.navigate('GoalDetail', { goalId })}
+      onCreatePress={() => navigation.navigate('GoalCreate')}
     />
   );
 }

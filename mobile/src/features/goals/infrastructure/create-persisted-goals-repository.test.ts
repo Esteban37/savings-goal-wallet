@@ -147,4 +147,38 @@ describe('createPersistedGoalsRepository', () => {
 
     expect(actualX).toEqual(expectedX);
   });
+
+  it('lists zero goals from a valid empty envelope and does not write the seed', async () => {
+    const inputEnvelope = { version: 1, goals: [] };
+    const mockStore = new MapKeyValueStore({
+      [GOALS_STORAGE_KEY]: JSON.stringify(inputEnvelope),
+    });
+    const mockRepository = createPersistedGoalsRepository({
+      store: mockStore,
+    });
+
+    const actualGoals = await mockRepository.list();
+    const storedAfter = await mockStore.getItem(GOALS_STORAGE_KEY);
+
+    expect(actualGoals).toEqual([]);
+    expect(storedAfter).toBe(JSON.stringify(inputEnvelope));
+  });
+
+  it('persists a remove so a second instance no longer lists that id', async () => {
+    const mockStore = new MapKeyValueStore();
+    const mockRepository = createPersistedGoalsRepository({
+      store: mockStore,
+    });
+    await mockRepository.list();
+    await mockRepository.remove('goal-vacaciones');
+
+    const actualRepository = createPersistedGoalsRepository({
+      store: mockStore,
+    });
+    const actualIds = (await actualRepository.list()).map(goal => goal.id);
+    const expectedX = ['goal-emergencia', 'goal-bici'];
+
+    expect(actualIds).toEqual(expectedX);
+    expect(await actualRepository.getById('goal-vacaciones')).toBeNull();
+  });
 });
