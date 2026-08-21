@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage), `fase-7-ui-contemporanea` (títulos únicos y apariencia) y `fase-8-alta-baja-metas` (FAB + baja). **Change en curso:** `fase-9-ios-host`. Las fases 10–11 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage), `fase-7-ui-contemporanea` (títulos únicos y apariencia), `fase-8-alta-baja-metas` (FAB + baja) y `fase-9-ios-host` (Simulator + TurboModule iOS). Las fases 10–11 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -449,7 +449,7 @@ F10 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F9 iOS n
 
 **No hace:** skills/agent ni `docs/ia/USO_IA.md` (Fase 10); cierre completo de README (Fase 11); App Store / TestFlight / dispositivo físico como criterio de merge.
 
-**Cierre:** la app abre en iOS Simulator con el mismo flujo de producto que Android.
+**Cierre:** la app abre en iOS Simulator con el mismo flujo de producto que Android. **Estado:** aplicada y archivada.
 
 ### Fase 10 — IA gobernada
 
@@ -506,7 +506,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 - [x] Store actualizado desde la web (HU 3).
 - [x] `libreria/`: nativo real (Toast Android), tests JS, consumida por `mobile/`.
 - [x] Alta y baja de metas (FAB + WebView create; long-press + confirmación nativa).
-- [ ] Host iOS (Simulator): New Architecture, `web/` en el bundle, overlay y `UIAlertController`.
+- [x] Host iOS (Simulator): New Architecture, `web/` en el bundle, overlay y `UIAlertController`.
 - [ ] `mobile/`: tests y skill/agent.
 - [ ] Coverage del core en `libreria/` y `mobile/` (≥70% dominio).
 - [ ] TypeScript sin `any` injustificado.
@@ -529,7 +529,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia`, `fase-7-ui-contemporanea` y `fase-8-alta-baja-metas` están **archivados** (proposal, specs, design, tasks aplicados). `fase-9-ios-host` es el change en curso.
+Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia`, `fase-7-ui-contemporanea`, `fase-8-alta-baja-metas` y `fase-9-ios-host` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
@@ -541,5 +541,5 @@ Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fas
 | 6 | `fase-6-persistencia` | Archivado. AsyncStorage detrás de `GoalsRepository`, seed-if-empty. |
 | 7 | `fase-7-ui-contemporanea` | Archivado. Títulos únicos, chrome contemporáneo, apariencia persistida. |
 | 8 | `fase-8-alta-baja-metas` | Archivado. FAB + formulario web de alta; long-press + confirmación de baja. |
-| 9 | `fase-9-ios-host` | En curso. Simulator, bundle `web/`, TurboModule iOS real. |
+| 9 | `fase-9-ios-host` | Archivado. Simulator, bundle `web/`, overlay y `UIAlertController`. |
 | 10–11 | Changes nuevos al arrancar cada fase | IA gobernada (10) y documentación/cierre (11) |

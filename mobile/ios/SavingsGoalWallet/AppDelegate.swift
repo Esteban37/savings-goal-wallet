@@ -26,16 +26,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     factory.startReactNative(
       withModuleName: "SavingsGoalWallet",
       in: window,
+      initialProperties: Self.webBundleProperties(),
       launchOptions: launchOptions
     )
 
     return true
+  }
+
+  /// Host-less `file://` URLs so WKWebView uses `loadFileURL:` (a `localhost`
+  /// host makes react-native-webview call `loadRequest:` and fail with NSURLErrorDomain).
+  private static func webBundleProperties() -> [String: String] {
+    guard
+      let path = Bundle.main.path(forResource: "index", ofType: "html", inDirectory: "web")
+    else {
+      return [:]
+    }
+    let htmlURL = URL(fileURLWithPath: path)
+    return [
+      "webIndexHtmlUri": htmlURL.absoluteString,
+      "webDirectoryUri": htmlURL.deletingLastPathComponent().absoluteString,
+    ]
   }
 }
 
 class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
   override func sourceURL(for bridge: RCTBridge) -> URL? {
     self.bundleURL()
+  }
+
+  override func extraModules(for bridge: RCTBridge!) -> [any RCTBridgeModule] {
+    [SGWWebAssets()]
   }
 
   override func bundleURL() -> URL? {

@@ -197,9 +197,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SavingsGoalWallet/Pods-SavingsGoalWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SavingsGoalWallet/Pods-SavingsGoalWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -255,9 +259,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SavingsGoalWallet/Pods-SavingsGoalWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-SavingsGoalWallet/Pods-SavingsGoalWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -301,6 +309,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.savingsgoalwallet;
 				PRODUCT_NAME = SavingsGoalWallet;
+				SWIFT_OBJC_BRIDGING_HEADER = "SavingsGoalWallet/SavingsGoalWallet-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -328,6 +337,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.savingsgoalwallet;
 				PRODUCT_NAME = SavingsGoalWallet;
+				SWIFT_OBJC_BRIDGING_HEADER = "SavingsGoalWallet/SavingsGoalWallet-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

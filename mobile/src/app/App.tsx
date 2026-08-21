@@ -1,5 +1,6 @@
 import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { setIosWebBundleUris } from '../features/goal-detail/infrastructure/local-web-asset-uri';
 import { AppearanceProvider } from './appearance';
 import { RootNavigator } from './navigation/root-navigator';
 import { createAppDependencies } from './di/create-app-dependencies';
@@ -7,7 +8,16 @@ import { createAppStore } from './store/store';
 
 const store = createAppStore(createAppDependencies());
 
-function App() {
+export type AppProps = {
+  webIndexHtmlUri?: string;
+  webDirectoryUri?: string;
+};
+
+function App({ webIndexHtmlUri, webDirectoryUri }: AppProps = {}) {
+  setIosWebBundleUris({
+    indexHtmlUri: webIndexHtmlUri,
+    webDirectoryUri: webDirectoryUri,
+  });
   return (
     <Provider store={store}>
       <SafeAreaProvider

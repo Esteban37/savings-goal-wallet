@@ -45,6 +45,17 @@ On Android, `notifyGoalCompleted` SHALL show a native Toast (or a local system n
 - **WHEN** `notifyGoalCompleted` is called with an empty string
 - **THEN** the Promise still settles and the host does not crash (native UI MAY be omitted)
 
+### Requirement: iOS shows native completion UI
+On iOS, `notifyGoalCompleted` SHALL show native, non-blocking feedback that includes the given goal name. The returned Promise MUST still settle after the native UI is requested. Native UI MUST run on the iOS main thread. The implementation MUST remain a TurboModule in the library package; it MUST NOT be reimplemented inside the mobile host. The copy MUST NOT reuse the registration wording.
+
+#### Scenario: Completion feedback appears for a completed goal name
+- **WHEN** the iOS host calls `notifyGoalCompleted` with a non-empty goal name (for example after a deposit that reaches 100%)
+- **THEN** native feedback is visible to the user, includes that goal name, does not say the goal was registered, and the Promise settles without crashing the host
+
+#### Scenario: Empty completed name still settles on iOS
+- **WHEN** `notifyGoalCompleted` is called with an empty string on iOS
+- **THEN** the Promise still settles and the host does not crash (native UI MAY be omitted)
+
 ### Requirement: JavaScript wrappers are unit-tested
 The library workspace SHALL include automated JavaScript tests for the public wrappers. Those tests MUST mock the TurboModule and MUST NOT require an emulator or instrumented Android run as the merge gate.
 
@@ -59,13 +70,6 @@ The library workspace SHALL include automated JavaScript tests for the public wr
 #### Scenario: showConfirmDialog forwards title and message
 - **WHEN** the unit suite calls `showConfirmDialog` with a fixture title and message against a mocked TurboModule
 - **THEN** the mock native method is invoked with those strings and the returned Promise settles to a boolean
-
-### Requirement: iOS native may remain a resolving stub
-iOS native implementations SHALL continue to exist for autolinking. They MAY resolve without showing Toast, notification, or a platform alert. A real iOS dialog or notification is stretch and MUST NOT block Android create/delete.
-
-#### Scenario: iOS stub still links
-- **WHEN** a reviewer inspects the iOS native module
-- **THEN** `notifyGoalCompleted`, `notifyGoalCreated`, and `showConfirmDialog` still settle and the iOS project remains part of the library package
 
 ### Requirement: Library is a first-class workspace package
 The library SHALL live under `libreria/` with its own package manifest, TypeScript sources, and native `android/` and `ios/` trees. It MUST remain consumable as a workspace dependency of `mobile`.
@@ -85,6 +89,17 @@ On Android, `notifyGoalCreated` SHALL show a native Toast (or a local system not
 - **WHEN** `notifyGoalCreated` is called with an empty string
 - **THEN** the Promise still settles and the host does not crash (native UI MAY be omitted)
 
+### Requirement: iOS shows native registration UI
+On iOS, `notifyGoalCreated` SHALL show native, non-blocking feedback that includes the given goal name and MUST NOT reuse the completion copy (“Meta completada”). The returned Promise MUST still settle after the native UI is requested. Native UI MUST run on the iOS main thread. The implementation MUST remain a TurboModule in the library package; it MUST NOT be reimplemented inside the mobile host.
+
+#### Scenario: Registration feedback appears for a created goal name
+- **WHEN** the iOS host calls `notifyGoalCreated` with a non-empty goal name
+- **THEN** native feedback is visible to the user, includes that goal name, does not say the goal is completed, and the Promise settles without crashing the host
+
+#### Scenario: Empty created name still settles on iOS
+- **WHEN** `notifyGoalCreated` is called with an empty string on iOS
+- **THEN** the Promise still settles and the host does not crash (native UI MAY be omitted)
+
 ### Requirement: Android confirm dialog is a real cancel-or-confirm prompt
 On Android, `showConfirmDialog` SHALL show a native confirm/cancel dialog with the given title and message. Confirm MUST settle the Promise to `true`. Cancel MUST settle the Promise to `false`. The dialog MUST NOT auto-resolve to `true` without user input. The implementation MUST remain a TurboModule in the library package.
 
@@ -94,4 +109,15 @@ On Android, `showConfirmDialog` SHALL show a native confirm/cancel dialog with t
 
 #### Scenario: Cancel returns false
 - **WHEN** the Android host calls `showConfirmDialog` and the user cancels
+- **THEN** the Promise settles to `false`
+
+### Requirement: iOS confirm dialog is a real cancel-or-confirm prompt
+On iOS, `showConfirmDialog` SHALL show a native confirm/cancel dialog with the given title and message. Confirm MUST settle the Promise to `true`. Cancel MUST settle the Promise to `false`. The dialog MUST NOT auto-resolve to `true` without user input. The implementation MUST remain a TurboModule in the library package.
+
+#### Scenario: iOS confirm returns true
+- **WHEN** the iOS host calls `showConfirmDialog` and the user confirms
+- **THEN** the Promise settles to `true`
+
+#### Scenario: iOS cancel returns false
+- **WHEN** the iOS host calls `showConfirmDialog` and the user cancels
 - **THEN** the Promise settles to `false`

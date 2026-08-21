@@ -37,20 +37,21 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 - **Toast nativo** — HU 4: `RnSavingsNotifierAdapter` + TurboModule (Toast Android / overlay iOS), no `Alert` de RN
 - **Apariencia** — header único, tokens light/dark, control sistema/claro/oscuro persistido; WebView con `data-theme`
 - **Alta y baja** — FAB + formulario web (`CREATE_REQUESTED`); long-press + diálogo nativo de confirmación
+- **iOS** — Simulator de primer nivel: New Architecture, `web/` en el bundle, overlay y `UIAlertController`
 - **OpenSpec** — un change por fase, rama `feat/<change-name>`, PR hacia `main`
 
 ---
 
 ## Funcionalidades
 
-### Implementado (Fases 1–8)
+### Implementado (Fases 1–9)
 
 | Funcionalidad | Estado |
 |---------------|--------|
 | Workspaces `mobile/`, `libreria/`, `web/` | ✅ |
 | Host Android RN 0.81 + New Architecture + Hermes | ✅ |
-| Host iOS RN 0.81 + New Architecture + Hermes (Simulator) | ⏳ Fase 9 |
-| WebView `file://` con HTML de `web/` (assets Android / bundle iOS; no es launch screen) | ⏳ Fase 9 iOS |
+| Host iOS RN 0.81 + New Architecture + Hermes (Simulator) | ✅ |
+| WebView `file://` con HTML de `web/` (assets Android / bundle iOS; no es launch screen) | ✅ |
 | Contrato de prueba `WEB_READY` / `DEPOSIT_REQUESTED` | ✅ |
 | API JS `notifyGoalCompleted` / `notifyGoalCreated` / `showConfirmDialog` | ✅ |
 | Esqueleto `mobile/src` (composition root, `core/`, features) | ✅ |
@@ -63,7 +64,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | WebView inmersivo de detalle/abono (HU 2) | ✅ |
 | Abono web → `MakeDeposit` → listado sin recargar (HU 3) | ✅ |
 | Toast nativo al completar meta (HU 4, Android) | ✅ |
-| Overlay nativo al completar / registrar meta (iOS) | ⏳ Fase 9 |
+| Overlay nativo al completar / registrar meta (iOS) | ✅ |
 | Persistencia AsyncStorage detrás de `GoalsRepository` | ✅ |
 | Títulos únicos (header nativo; listado y web no los repiten) | ✅ |
 | Apariencia sistema / claro / oscuro (persistida; WebView `data-theme`) | ✅ |
@@ -82,11 +83,15 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | **6** Persistencia | Adapter `GoalsRepository` (AsyncStorage) | ✅ |
 | **7** UI contemporánea | Títulos únicos, chrome actual, modo oscuro (sistema / claro / oscuro) | ✅ |
 | **8** Alta y baja de metas | FAB + formulario web; long-press + confirmación | ✅ |
-| **9** Entorno iOS | Simulator, bundle `web/`, TurboModule overlay + `UIAlertController` | En curso |
+| **9** Entorno iOS | Simulator, bundle `web/`, TurboModule overlay + `UIAlertController` | ✅ |
 | **10** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
 | **11** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
 
 Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md).
+
+| Listado | Nueva meta | Abono |
+|---------|------------|-------|
+| ![Listado de metas](docs/assets/screenshots/metas-de-ahorro.png) | ![Formulario de nueva meta](docs/assets/screenshots/nueva-meta.png) | ![Abono en WebView](docs/assets/screenshots/abonar.png) |
 
 ---
 
@@ -181,6 +186,7 @@ Cubre dominio, parser Zod (incluye `CREATE_*`), use cases de alta/baja/abono, sl
 | [`openspec/changes/archive/2026-08-20-fase-6-persistencia/`](openspec/changes/archive/2026-08-20-fase-6-persistencia/) | Change archivado de Fase 6 |
 | [`openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/`](openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/) | Change archivado de Fase 7 |
 | [`openspec/changes/archive/2026-08-21-fase-8-alta-baja-metas/`](openspec/changes/archive/2026-08-21-fase-8-alta-baja-metas/) | Change archivado de Fase 8 |
+| [`openspec/changes/archive/2026-08-21-fase-9-ios-host/`](openspec/changes/archive/2026-08-21-fase-9-ios-host/) | Change archivado de Fase 9 |
 | [`mobile/README.md`](mobile/README.md) | Notas del template CLI (Metro, reload) |
 
 ---

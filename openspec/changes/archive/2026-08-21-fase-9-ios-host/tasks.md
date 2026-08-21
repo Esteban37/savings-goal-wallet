@@ -29,4 +29,4 @@
 
 ## 6. Simulator demo
 
-- [ ] 6.1 Native-rebuild the iOS host (`pod install` if needed, then `npm run ios`) and on Simulator: launch shows the native list (not the micro-app); opening a goal loads the bundled web form (not `android_asset`); completing a goal shows overlay “Meta completada”; FAB → Viaje / 500000 shows overlay “Meta registrada” and a new row; long-press shows `UIAlertController`; cancel keeps the row; confirm removes it
+- [x] 6.1 Native-rebuild the iOS host (`pod install` if needed, then `npm run ios`) and on Simulator: launch shows the native list (not the micro-app); opening a goal loads the bundled web form (not `android_asset`); completing a goal shows overlay “Meta completada”; FAB → Viaje / 500000 shows overlay “Meta registrada” and a new row; long-press shows `UIAlertController`; cancel keeps the row; confirm removes it
