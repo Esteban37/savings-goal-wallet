@@ -1,5 +1,6 @@
 import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AppearanceProvider } from './appearance';
 import { RootNavigator } from './navigation/root-navigator';
 import { createAppDependencies } from './di/create-app-dependencies';
 import { createAppStore } from './store/store';
@@ -14,7 +15,9 @@ function App() {
           frame: { x: 0, y: 0, width: 0, height: 0 },
           insets: { top: 0, left: 0, right: 0, bottom: 0 },
         }}>
-        <RootNavigator />
+        <AppearanceProvider>
+          <RootNavigator />
+        </AppearanceProvider>
       </SafeAreaProvider>
     </Provider>
   );

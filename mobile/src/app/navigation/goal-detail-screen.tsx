@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Text } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useAppearance } from '../appearance/appearance-provider';
 import { useAppSelector } from '../store/hooks';
 import { GoalDetailContainer } from '../../features/goal-detail/public';
 import { selectGoalById } from '../../features/goals/public';
@@ -16,6 +17,7 @@ export function GoalDetailScreen({
   navigation,
 }: GoalDetailScreenProps) {
   const { goalId } = route.params;
+  const { resolvedScheme } = useAppearance();
   const goal = useAppSelector(state => selectGoalById(state, goalId));
 
   useEffect(() => {
@@ -26,5 +28,5 @@ export function GoalDetailScreen({
     return <Text>Meta no encontrada</Text>;
   }
 
-  return <GoalDetailContainer goalId={goalId} />;
+  return <GoalDetailContainer goalId={goalId} colorScheme={resolvedScheme} />;
 }

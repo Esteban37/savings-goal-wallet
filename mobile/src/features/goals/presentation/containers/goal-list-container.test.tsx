@@ -15,7 +15,7 @@ describe('GoalListContainer', () => {
     const mockDeps = createAppDependencies();
     const store = createAppStore(mockDeps);
 
-    const { getByText, getAllByText } = render(
+    const { getByText, getAllByText, queryByText } = render(
       <Provider store={store}>
         <SafeAreaProvider initialMetrics={initialMetrics}>
           <GoalListContainer />
@@ -27,5 +27,6 @@ describe('GoalListContainer', () => {
       expect(getByText('Vacaciones')).toBeTruthy();
       expect(getAllByText('25%').length).toBeGreaterThan(0);
     });
+    expect(queryByText('Metas de ahorro')).toBeNull();
   });
 });

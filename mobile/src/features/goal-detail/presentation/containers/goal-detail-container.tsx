@@ -1,6 +1,7 @@
 import { useCallback, useRef } from 'react';
 import type { WebViewMessageEvent } from 'react-native-webview';
 import { useAppDispatch, useAppSelector } from '../../../../app/store/hooks';
+import type { ColorScheme } from '../../../../shared/ui/tokens';
 import { selectGoalById } from '../../../goals/public';
 import {
   createHostMessageScript,
@@ -16,13 +17,17 @@ import {
 
 type GoalDetailContainerProps = {
   goalId: string;
+  colorScheme: ColorScheme;
 };
 
 function createSessionId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-export function GoalDetailContainer({ goalId }: GoalDetailContainerProps) {
+export function GoalDetailContainer({
+  goalId,
+  colorScheme,
+}: GoalDetailContainerProps) {
   const dispatch = useAppDispatch();
   const goal = useAppSelector(state => selectGoalById(state, goalId));
   const webViewRef = useRef<HostWebView | null>(null);
@@ -95,6 +100,7 @@ export function GoalDetailContainer({ goalId }: GoalDetailContainerProps) {
   return (
     <WebViewHostPresenter
       sourceUri={LOCAL_WEB_ASSET_URI}
+      colorScheme={colorScheme}
       onMessage={onMessage}
       onWebViewRef={onWebViewRef}
     />

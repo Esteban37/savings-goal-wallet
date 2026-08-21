@@ -35,7 +35,6 @@ function hideError() {
 function renderGoal(goal) {
   $('waiting').classList.add('hidden');
   $('detail').classList.remove('hidden');
-  $('goal-name').textContent = goal.name;
   $('target-amount').textContent = formatPesos(goal.targetAmount);
   $('deposited-amount').textContent = formatPesos(goal.depositedAmount);
   $('progress-percent').textContent = String(goal.progressPercent);
@@ -55,6 +54,7 @@ function onHostMessage(message) {
     hideError();
     $('deposited-amount').textContent = formatPesos(message.payload.depositedAmount);
     $('progress-percent').textContent = String(message.payload.progressPercent);
+    $('amount-input').value = '';
     return;
   }
   if (message.type === 'DEPOSIT_FAILED') {

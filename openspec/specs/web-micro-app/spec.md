@@ -21,11 +21,15 @@ On load, the micro-app SHALL post a JSON string envelope `{ "type": "WEB_READY",
 - **THEN** the host receives a `WEB_READY` message whose payload includes a `goalId` string
 
 ### Requirement: Page renders the bootstrapped goal
-After receiving a native-to-web `SESSION_BOOTSTRAP` envelope, the micro-app SHALL display the goal’s name, target amount, deposited amount, and progress percent from that payload. The page MUST NOT invent those values when bootstrap data is present. Until bootstrap arrives, the page MAY show a waiting state and MUST NOT treat the dummy scaffold copy as the selected goal’s data.
+After receiving a native-to-web `SESSION_BOOTSTRAP` envelope, the micro-app SHALL display the goal’s target amount, deposited amount, and progress percent from that payload. The page MUST NOT invent those values when bootstrap data is present. Until bootstrap arrives, the page MAY show a waiting state and MUST NOT treat the dummy scaffold copy as the selected goal’s data. The page MUST NOT render the bootstrapped goal name as a page heading, because the native stack header already shows that name.
 
 #### Scenario: Bootstrap paints the selected goal
 - **WHEN** the page receives `SESSION_BOOTSTRAP` for a goal named Vacaciones with target 100000 and deposited 25000
-- **THEN** the user sees that name and those amounts (or the equivalent percent) in the page
+- **THEN** the user sees those amounts (or the equivalent percent) in the page
+
+#### Scenario: Goal name is not repeated as a heading
+- **WHEN** the page receives `SESSION_BOOTSTRAP` for a goal named Vacaciones
+- **THEN** the page does not show a heading whose text is Vacaciones
 
 ### Requirement: User submits a deposit amount for the bootstrapped goal
 The micro-app SHALL show a visible amount control and a confirm control. When the user confirms, the page MUST post a JSON string envelope `{ "type": "DEPOSIT_REQUESTED", "payload": { "goalId": "<string>", "amount": <number> } }` whose `goalId` is the bootstrapped goal identifier (not a leftover scaffold placeholder once bootstrap has arrived) and whose `amount` is the number the user entered. The page MUST NOT call `fetch` or native modules to apply the deposit.
@@ -58,3 +62,14 @@ The `web` workspace MUST NOT include a test runner, test files, or a coverage ta
 #### Scenario: No web tests
 - **WHEN** a developer lists files under `web/`
 - **THEN** there are no `*.test.*`, `*.spec.*`, or test-runner config files for that workspace
+
+### Requirement: Micro-app chrome follows the host appearance
+The micro-app page MUST use a light or dark visual scheme that matches the host’s resolved appearance. Changing the host appearance while the detail screen is visible MUST restyle the page. The page MUST NOT call network endpoints to load a theme and MUST NOT add a new `postMessage` catalog type for appearance.
+
+#### Scenario: Dark host yields a dark page
+- **WHEN** the host resolved scheme is dark and the detail screen is showing the bootstrapped goal
+- **THEN** the micro-app page background is dark and text is light
+
+#### Scenario: Switching appearance restyles an open detail
+- **WHEN** the detail screen is visible and the user changes the host appearance from light to dark
+- **THEN** the micro-app page switches to the dark scheme without posting a new catalog message type
