@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Defines the React Native CLI Android host that launches with New Architecture and Hermes, reserves the feature folder skeleton, and displays the local web micro-app.
+Defines the React Native CLI Android and iOS host that launches with New Architecture and Hermes, reserves the feature folder skeleton, and displays the local web micro-app.
 
 ## Requirements
 

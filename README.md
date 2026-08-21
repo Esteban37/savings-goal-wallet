@@ -20,7 +20,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | `libreria/` | `rn-savings-notifier` | TurboModule: aviso al completar una meta y diálogo de confirmación |
 | `web/` | `web` | Micro-app HTML/JS estática cargada en el WebView (`file://`) |
 
-**Fase actual:** Fase 8 — alta y baja de metas. FAB abre el formulario web de alta; Toast nativo al registrar; long-press con confirmación nativa para borrar. Docs de IA y cierre de README quedan para las fases 9–10.
+**Fase actual:** Fase 9 — entorno iOS. Simulator, `web/` en el bundle, overlay nativo y `UIAlertController` de baja. Docs de IA y cierre de README quedan para las fases 10–11.
 
 ---
 
@@ -28,13 +28,13 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 
 - **Monorepo npm** — un `npm install` enlaza `mobile`, `libreria` y `web`
 - **Host CLI** — React Native **0.81.6**, React **19**, Hermes, New Architecture; **sin Expo**
-- **Micro-app local** — `web/` se copia a assets de Android; sin servidor ni `fetch`
+- **Micro-app local** — `web/` se copia a assets de Android y al bundle iOS; sin servidor ni `fetch`
 - **Librería de primer nivel** — TurboModule Kotlin + Objective-C, autolinking, nunca vendored en `mobile/`
 - **Arquitectura congelada** — Clean Architecture feature-first, DI por factory + `extraArgument` de RTK
 - **Kernel testeable** — dominio, puertos y parser Zod cubiertos por Jest
 - **Listado nativo** — RTK + `extraArgument`; persistencia AsyncStorage detrás del puerto `GoalsRepository`; Container-Presenter
 - **Detalle/abono** — WebView inmersivo, `postMessage` Zod, listado sin reload
-- **Toast nativo** — HU 4: `RnSavingsNotifierAdapter` + TurboModule Android (`Toast`), no `Alert` de RN
+- **Toast nativo** — HU 4: `RnSavingsNotifierAdapter` + TurboModule (Toast Android / overlay iOS), no `Alert` de RN
 - **Apariencia** — header único, tokens light/dark, control sistema/claro/oscuro persistido; WebView con `data-theme`
 - **Alta y baja** — FAB + formulario web (`CREATE_REQUESTED`); long-press + diálogo nativo de confirmación
 - **OpenSpec** — un change por fase, rama `feat/<change-name>`, PR hacia `main`
@@ -49,7 +49,8 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 |---------------|--------|
 | Workspaces `mobile/`, `libreria/`, `web/` | ✅ |
 | Host Android RN 0.81 + New Architecture + Hermes | ✅ |
-| WebView `file://` con HTML de `web/` (assets; no es launch screen) | ✅ |
+| Host iOS RN 0.81 + New Architecture + Hermes (Simulator) | ⏳ Fase 9 |
+| WebView `file://` con HTML de `web/` (assets Android / bundle iOS; no es launch screen) | ⏳ Fase 9 iOS |
 | Contrato de prueba `WEB_READY` / `DEPOSIT_REQUESTED` | ✅ |
 | API JS `notifyGoalCompleted` / `notifyGoalCreated` / `showConfirmDialog` | ✅ |
 | Esqueleto `mobile/src` (composition root, `core/`, features) | ✅ |
@@ -62,6 +63,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | WebView inmersivo de detalle/abono (HU 2) | ✅ |
 | Abono web → `MakeDeposit` → listado sin recargar (HU 3) | ✅ |
 | Toast nativo al completar meta (HU 4, Android) | ✅ |
+| Overlay nativo al completar / registrar meta (iOS) | ⏳ Fase 9 |
 | Persistencia AsyncStorage detrás de `GoalsRepository` | ✅ |
 | Títulos únicos (header nativo; listado y web no los repiten) | ✅ |
 | Apariencia sistema / claro / oscuro (persistida; WebView `data-theme`) | ✅ |
@@ -80,8 +82,9 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | **6** Persistencia | Adapter `GoalsRepository` (AsyncStorage) | ✅ |
 | **7** UI contemporánea | Títulos únicos, chrome actual, modo oscuro (sistema / claro / oscuro) | ✅ |
 | **8** Alta y baja de metas | FAB + formulario web; long-press + confirmación | ✅ |
-| **9** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
-| **10** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
+| **9** Entorno iOS | Simulator, bundle `web/`, TurboModule overlay + `UIAlertController` | En curso |
+| **10** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
+| **11** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
 
 Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md).
 
@@ -130,30 +133,37 @@ Detalle: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) · specs en [`opensp
 
 ## Cómo ejecutar
 
-**Requisitos:** Node **20+** · **JDK 17** · Android SDK · emulador o dispositivo.
+**Requisitos:** Node **20+** · **JDK 17** · Android SDK · **Xcode 16+** (macOS) · emulador Android o **iOS Simulator**.
 
 ```bash
 git clone https://github.com/Esteban37/savings-goal-wallet.git
 cd savings-goal-wallet
 npm install
+cd mobile/ios && pod install && cd ../..
 npm start
 ```
 
-En otra terminal:
+En otra terminal, Android:
 
 ```bash
 npm run android
 ```
 
-La app abre el **listado nativo** con 3 metas seed si el almacenamiento está vacío. El FAB **Agregar meta** abre el formulario web de alta; al registrar, un Toast nativo confirma y el listado se actualiza sin recargar. Long-press en una card pide confirmación nativa para borrar; una lista vacía no se re-siembra. El título “Metas de ahorro” vive solo en el header; arriba a la derecha se cicla apariencia. Un tap abre el detalle/abono en WebView. Tras matar la app, metas y apariencia se conservan.
+o iOS Simulator:
+
+```bash
+npm run ios
+```
+
+La app abre el **listado nativo** con 3 metas seed si el almacenamiento está vacío. El FAB **Agregar meta** abre el formulario web de alta; al registrar, un aviso nativo confirma y el listado se actualiza sin recargar. Long-press en una card pide confirmación nativa para borrar; una lista vacía no se re-siembra. El título “Metas de ahorro” vive solo en el header; arriba a la derecha se cicla apariencia. Un tap abre el detalle/abono en WebView. Tras matar la app, metas y apariencia se conservan.
+
+Tras cambiar Kotlin/ObjC hay que **rebuild nativo** (`npm run android` o `npm run ios`); Metro solo no basta.
 
 ```bash
 npm test
 ```
 
-Cubre dominio, parser Zod (incluye `CREATE_*`), use cases de alta/baja/abono, slice/selectores, repositorio persistido (lista vacía no re-siembra), apariencia, bridge, adapters de notificaciones/confirmación, wrappers de `libreria/` y el listado (RNTL), más el smoke de `App.test.tsx`.
-
-iOS del template existe; el cierre de Fase 1 es **Android**.
+Cubre dominio, parser Zod (incluye `CREATE_*`), use cases de alta/baja/abono, slice/selectores, repositorio persistido (lista vacía no re-siembra), apariencia, bridge, adapters de notificaciones/confirmación, URI local del WebView, wrappers de `libreria/` y el listado (RNTL), más el smoke de `App.test.tsx`.
 
 ---
 
@@ -205,7 +215,7 @@ Un change OpenSpec ≈ una rama `feat/<change-name>` ≈ un PR → `main`. El hi
 `main` es la rama de integración. Cada change de OpenSpec se implementa en su propia rama y entra con pull request.
 
 1. Actualizar `main` desde `origin/main`.
-2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-9-ia-gobernada`).
+2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-10-ia-gobernada`).
 3. Commits convencionales (`feat`, `fix`, `test`, `docs`, `chore`) y push en esa rama.
 4. Abrir un PR hacia `main` y mergearlo ahí.
 

@@ -7,11 +7,10 @@ import {
   type WebViewProps,
 } from 'react-native-webview';
 import type { ColorScheme } from '../../../../shared/ui/tokens';
+import { getLocalWebReadAccessUri } from '../../infrastructure/local-web-asset-uri';
 import { createThemeAttributeScript } from './create-theme-attribute-script';
 
 const WebView = RNWebView as unknown as ComponentClass<WebViewProps>;
-
-export const LOCAL_WEB_ASSET_URI = 'file:///android_asset/web/index.html';
 
 export type HostWebView = {
   injectJavaScript: (script: string) => void;
@@ -55,7 +54,7 @@ export function ImmersiveWebViewTemplate({
         javaScriptEnabled
         originWhitelist={['*']}
         allowFileAccess
-        allowingReadAccessToURL={sourceUri}
+        allowingReadAccessToURL={getLocalWebReadAccessUri(sourceUri)}
         mixedContentMode="always"
         injectedJavaScriptBeforeContentLoaded={themeScript}
         injectedJavaScript={themeScript}

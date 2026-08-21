@@ -6,21 +6,21 @@ export type ConfirmDialogInput = {
 };
 
 /**
- * Notifies that a savings goal is complete (Android Toast; iOS may stub).
+ * Notifies that a savings goal is complete (Android Toast; iOS overlay).
  */
 export function notifyGoalCompleted(goalName: string): Promise<void> {
   return NativeRnSavingsNotifier.notifyGoalCompleted(goalName);
 }
 
 /**
- * Notifies that a savings goal was registered (Android Toast; iOS may stub).
+ * Notifies that a savings goal was registered (Android Toast; iOS overlay).
  */
 export function notifyGoalCreated(goalName: string): Promise<void> {
   return NativeRnSavingsNotifier.notifyGoalCreated(goalName);
 }
 
 /**
- * Shows a native confirm dialog. Android shows AlertDialog; iOS may stub.
+ * Shows a native confirm dialog (Android AlertDialog; iOS UIAlertController).
  */
 export function showConfirmDialog(
   input: ConfirmDialogInput,

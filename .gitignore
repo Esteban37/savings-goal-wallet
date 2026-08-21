@@ -11,6 +11,7 @@ node_modules/
 *.ipa
 *.apk
 *.aab
+*.app
 *.cxx/
 .cxx/
 build/
