@@ -188,7 +188,7 @@ Un change OpenSpec ≈ una rama `feat/<change-name>` ≈ un PR → `main`. El hi
 `main` es la rama de integración. Cada change de OpenSpec se implementa en su propia rama y entra con pull request.
 
 1. Actualizar `main` desde `origin/main`.
-2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-4-webview-abono`).
+2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-5-nativo-real`).
 3. Commits convencionales (`feat`, `fix`, `test`, `docs`, `chore`) y push en esa rama.
 4. Abrir un PR hacia `main` y mergearlo ahí.
 
