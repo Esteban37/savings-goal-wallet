@@ -29,12 +29,34 @@ The library SHALL declare a New Architecture TurboModule spec that Codegen can c
 - **WHEN** a reviewer inspects the library sources
 - **THEN** a TurboModule spec is present and the Android/iOS projects are wired as a native module package for autolinking
 
-### Requirement: Stub native behavior in this change
-Android and iOS native implementations SHALL exist so autolinking succeeds. In this change they MAY no-op or immediately resolve. They MUST NOT be required to show a real Toast, system notification, or platform alert yet.
+### Requirement: Android shows native completion UI
+On Android, `notifyGoalCompleted` SHALL show a native Toast (or a local system notification) that includes the given goal name. The returned Promise MUST still settle after the native UI is requested. Native UI MUST run on the Android main thread when required by the platform. The implementation MUST remain a TurboModule in the library package; it MUST NOT be reimplemented inside the mobile host.
 
-#### Scenario: Stub does not block launch
-- **WHEN** the Android host starts and invokes a public library method
-- **THEN** missing real Toast or notification UI does not prevent the Promise from settling or the host from remaining open
+#### Scenario: Toast appears for a completed goal name
+- **WHEN** the Android host calls `notifyGoalCompleted` with a non-empty goal name (for example after a deposit that reaches 100%)
+- **THEN** a native Toast or system notification is visible to the user and includes that goal name, and the Promise settles without crashing the host
+
+#### Scenario: Empty name still settles
+- **WHEN** `notifyGoalCompleted` is called with an empty string
+- **THEN** the Promise still settles and the host does not crash (native UI MAY be omitted)
+
+### Requirement: JavaScript wrappers are unit-tested
+The library workspace SHALL include automated JavaScript tests for the public wrappers. Those tests MUST mock the TurboModule and MUST NOT require an emulator or instrumented Android run as the merge gate.
+
+#### Scenario: notifyGoalCompleted forwards the goal name
+- **WHEN** the unit suite calls `notifyGoalCompleted` with a fixture goal name against a mocked TurboModule
+- **THEN** the mock native method is invoked with that same name and the returned Promise settles
+
+#### Scenario: showConfirmDialog forwards title and message
+- **WHEN** the unit suite calls `showConfirmDialog` with a fixture title and message against a mocked TurboModule
+- **THEN** the mock native method is invoked with those strings and the returned Promise settles to a boolean
+
+### Requirement: iOS native may remain a resolving stub
+iOS native implementations SHALL continue to exist for autolinking. They MAY resolve without showing Toast, notification, or a platform alert. A real iOS dialog or notification is stretch and MUST NOT block Android HU 4.
+
+#### Scenario: iOS stub still links
+- **WHEN** a reviewer inspects the iOS native module
+- **THEN** `notifyGoalCompleted` and `showConfirmDialog` still settle and the iOS project remains part of the library package
 
 ### Requirement: Library is a first-class workspace package
 The library SHALL live under `libreria/` with its own package manifest, TypeScript sources, and native `android/` and `ios/` trees. It MUST remain consumable as a workspace dependency of `mobile`.

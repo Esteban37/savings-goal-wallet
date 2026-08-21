@@ -6,14 +6,14 @@ export type ConfirmDialogInput = {
 };
 
 /**
- * Notifies that a savings goal is complete. Fase 1 stub resolves without UI.
+ * Notifies that a savings goal is complete (Android Toast; iOS may stub).
  */
 export function notifyGoalCompleted(goalName: string): Promise<void> {
   return NativeRnSavingsNotifier.notifyGoalCompleted(goalName);
 }
 
 /**
- * Shows a native confirm dialog. Fase 1 stub resolves `true` without UI.
+ * Shows a native confirm dialog. Android/iOS may still resolve `true` without UI.
  */
 export function showConfirmDialog(
   input: ConfirmDialogInput,

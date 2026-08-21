@@ -1,5 +1,4 @@
 import { AlwaysConfirmDialog } from '../../core/application/ports/fakes/always-confirm-dialog';
-import { NoopGoalNotifier } from '../../core/application/ports/fakes/noop-goal-notifier';
 import type { ConfirmDialog } from '../../core/application/ports/confirm-dialog';
 import type { GoalNotifier } from '../../core/application/ports/goal-notifier';
 import type { GoalsRepository } from '../../core/application/ports/goals-repository';
@@ -9,6 +8,7 @@ import {
 } from '../../features/goal-detail/application';
 import { createGetGoals, type GetGoals } from '../../features/goals/application';
 import { createSeededGoalsRepository } from '../../features/goals/infrastructure';
+import { RnSavingsNotifierAdapter } from '../../features/notifications/public';
 
 export type AppDependencies = {
   repository: GoalsRepository;
@@ -24,7 +24,7 @@ export function createAppDependencies(): AppDependencies {
     repository,
     getGoals: createGetGoals({ repository }),
     makeDeposit: createMakeDeposit({ repository }),
-    goalNotifier: new NoopGoalNotifier(),
+    goalNotifier: new RnSavingsNotifierAdapter(),
     confirmDialog: new AlwaysConfirmDialog(),
   };
 }

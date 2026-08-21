@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { notifyGoalCompleted } from 'rn-savings-notifier';
 import { RootNavigator } from './navigation/root-navigator';
 import { createAppDependencies } from './di/create-app-dependencies';
 import { createAppStore } from './store/store';
@@ -9,12 +7,6 @@ import { createAppStore } from './store/store';
 const store = createAppStore(createAppDependencies());
 
 function App() {
-  useEffect(() => {
-    notifyGoalCompleted('scaffold').catch((error: unknown) => {
-      console.warn('notifyGoalCompleted failed', error);
-    });
-  }, []);
-
   return (
     <Provider store={store}>
       <SafeAreaProvider

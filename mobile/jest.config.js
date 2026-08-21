@@ -1,6 +1,7 @@
 module.exports = {
   preset: 'react-native',
   watchman: false,
+  setupFiles: ['<rootDir>/jest.rn-savings-notifier-mock.js'],
   transformIgnorePatterns: [
     'node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-redux|@reduxjs|immer|@react-navigation|react-native-screens)/)',
   ],

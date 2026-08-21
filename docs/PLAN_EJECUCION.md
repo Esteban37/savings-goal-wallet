@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1) y `fase-4-webview-abono` (HU 2–3). Las fases 5–8 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3) y `fase-5-hu-4-nativo-real` (Toast nativo HU 4). Las fases 6–8 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -390,7 +390,7 @@ F7 puede avanzar en paralelo desde F2 (skills se usan de verdad). F6 no empieza 
 - Tests JS de la librería (módulo nativo mockeado).
 - Stretch: `AlertDialog` / `UIAlertController` en `showConfirmDialog`.
 
-**Cierre:** meta al 100% dispara confirmación **nativa**, no un `Alert` de RN.
+**Cierre:** meta al 100% dispara confirmación **nativa**, no un `Alert` de RN. **Estado:** aplicada y archivada.
 
 ### Fase 6 — Persistencia (stretch)
 
@@ -451,7 +451,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 - [x] WebView de detalle/abono (HU 2–3).
 - [x] `postMessage` bidireccional con contrato tipado (Zod).
 - [x] Store actualizado desde la web (HU 3).
-- [ ] `libreria/`: nativo real, tests, skill/agent, consumida por `mobile/`.
+- [x] `libreria/`: nativo real (Toast Android), tests JS, consumida por `mobile/`.
 - [ ] `mobile/`: tests y skill/agent.
 - [ ] Coverage del core en `libreria/` y `mobile/` (≥70% dominio).
 - [ ] TypeScript sin `any` injustificado.
@@ -474,7 +474,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` y `fase-4-webview-abono` están **archivados** (proposal, specs, design, tasks aplicados).
+Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono` y `fase-5-hu-4-nativo-real` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
@@ -482,4 +482,5 @@ Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fas
 | 2 | `fase-2-dominio-puertos-contrato` | Archivado. Dominio, puertos, use cases y parser Zod. |
 | 3 | `fase-3-redux-hu-1` | Archivado. Store RTK, seed in-memory y listado nativo HU 1. |
 | 4 | `fase-4-webview-abono` | Archivado. WebView inmersivo, bridge y listado sin recargar. |
-| 5–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
+| 5 | `fase-5-hu-4-nativo-real` | Archivado. Toast nativo Android, adapter y tests JS de la librería. |
+| 6–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
