@@ -7,7 +7,10 @@ import {
   type MakeDeposit,
 } from '../../features/goal-detail/application';
 import { createGetGoals, type GetGoals } from '../../features/goals/application';
-import { createSeededGoalsRepository } from '../../features/goals/infrastructure';
+import {
+  AsyncStorageKeyValueStore,
+  createPersistedGoalsRepository,
+} from '../../features/goals/infrastructure';
 import { RnSavingsNotifierAdapter } from '../../features/notifications/public';
 
 export type AppDependencies = {
@@ -19,7 +22,9 @@ export type AppDependencies = {
 };
 
 export function createAppDependencies(): AppDependencies {
-  const repository = createSeededGoalsRepository();
+  const repository = createPersistedGoalsRepository({
+    store: new AsyncStorageKeyValueStore(),
+  });
   return {
     repository,
     getGoals: createGetGoals({ repository }),

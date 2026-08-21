@@ -1,9 +1,13 @@
 module.exports = {
   preset: 'react-native',
   watchman: false,
-  setupFiles: ['<rootDir>/jest.rn-savings-notifier-mock.js'],
+  setupFiles: [
+    '<rootDir>/jest.rn-savings-notifier-mock.js',
+    '<rootDir>/jest.async-storage-mock.js',
+  ],
+  setupFilesAfterEnv: ['<rootDir>/jest.async-storage-reset.js'],
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-redux|@reduxjs|immer|@react-navigation|react-native-screens)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|@react-native-async-storage|react-redux|@reduxjs|immer|@react-navigation|react-native-screens)/)',
   ],
   collectCoverageFrom: [
     'src/core/domain/**/*.ts',
@@ -13,6 +17,7 @@ module.exports = {
     'src/features/goals/store/**/*.ts',
     'src/features/goal-detail/store/**/*.ts',
     'src/features/goal-detail/infrastructure/**/*.ts',
+    'src/features/goals/infrastructure/**/*.ts',
     'src/app/store/**/*.ts',
     '!src/**/index.ts',
     '!src/**/*.test.ts',

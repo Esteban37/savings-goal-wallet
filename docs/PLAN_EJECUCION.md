@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3) y `fase-5-hu-4-nativo-real` (Toast nativo HU 4). Las fases 6–8 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4) y `fase-6-persistencia` (AsyncStorage). Las fases 7–8 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -398,6 +398,8 @@ F7 puede avanzar en paralelo desde F2 (skills se usan de verdad). F6 no empieza 
 - Mismo use case. Test del mapper snapshot ↔ dominio.
 - Si no entra: el puerto ya está; el README describe el swap.
 
+**Cierre:** primer launch siembra 3 metas; abono + kill + relaunch conserva el acumulado. **Estado:** aplicada y archivada.
+
 ### Fase 7 — IA gobernada
 
 En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
@@ -434,7 +436,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 ## 10. Recorrido de demo
 
-- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast nativo.
+- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast nativo → kill/relaunch conserva acumulado.
 - **Arquitectura a mostrar:** feature-first vs capas globales, TurboModule vs NativeModule, `DEPOSIT_REQUESTED` vs confirmar en web, `extraArgument` vs IoC, atomic mínimo vs design system.
 - **IA gobernada:** skill/agent y un rechazo concreto (p. ej. no copiar nativo a `mobile/`, no `any` en el parser, no Alert de RN).
 - **Puntos de diseño:** autolinking/Metro, boundaries, listener HU 4, por qué Redux si el WebView ya tiene UI.
@@ -474,7 +476,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono` y `fase-5-hu-4-nativo-real` están **archivados** (proposal, specs, design, tasks aplicados).
+Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real` y `fase-6-persistencia` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
@@ -483,4 +485,5 @@ Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fas
 | 3 | `fase-3-redux-hu-1` | Archivado. Store RTK, seed in-memory y listado nativo HU 1. |
 | 4 | `fase-4-webview-abono` | Archivado. WebView inmersivo, bridge y listado sin recargar. |
 | 5 | `fase-5-hu-4-nativo-real` | Archivado. Toast nativo Android, adapter y tests JS de la librería. |
-| 6–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
+| 6 | `fase-6-persistencia` | Archivado. AsyncStorage detrás de `GoalsRepository`, seed-if-empty. |
+| 7–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
