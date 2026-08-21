@@ -20,7 +20,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | `libreria/` | `rn-savings-notifier` | TurboModule: aviso al completar una meta y diálogo de confirmación |
 | `web/` | `web` | Micro-app HTML/JS estática cargada en el WebView (`file://`) |
 
-**Fase actual:** Fase 6 — persistencia. Las metas viven en AsyncStorage detrás de `GoalsRepository`. iOS nativo de la librería y docs de IA quedan para fases siguientes.
+**Fase actual:** Fase 7 — UI contemporánea. Títulos únicos en el header nativo, chrome actualizado y apariencia sistema/claro/oscuro (persistida). Docs de IA y cierre de README quedan para las fases 8–9.
 
 ---
 
@@ -35,13 +35,14 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 - **Listado nativo** — RTK + `extraArgument`; persistencia AsyncStorage detrás del puerto `GoalsRepository`; Container-Presenter
 - **Detalle/abono** — WebView inmersivo, `postMessage` Zod, listado sin reload
 - **Toast nativo** — HU 4: `RnSavingsNotifierAdapter` + TurboModule Android (`Toast`), no `Alert` de RN
+- **Apariencia** — header único, tokens light/dark, control sistema/claro/oscuro persistido; WebView con `data-theme`
 - **OpenSpec** — un change por fase, rama `feat/<change-name>`, PR hacia `main`
 
 ---
 
 ## Funcionalidades
 
-### Implementado (Fases 1–6)
+### Implementado (Fases 1–7)
 
 | Funcionalidad | Estado |
 |---------------|--------|
@@ -61,6 +62,8 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | Abono web → `MakeDeposit` → listado sin recargar (HU 3) | ✅ |
 | Toast nativo al completar meta (HU 4, Android) | ✅ |
 | Persistencia AsyncStorage detrás de `GoalsRepository` | ✅ |
+| Títulos únicos (header nativo; listado y web no los repiten) | ✅ |
+| Apariencia sistema / claro / oscuro (persistida; WebView `data-theme`) | ✅ |
 
 ### Por fase
 
@@ -72,8 +75,9 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | **4** HU 2–3 — detalle y abono | WebView inmersivo; listado sin recargar | ✅ |
 | **5** HU 4 — nativo real | Toast / notificación al 100% | ✅ |
 | **6** Persistencia | Adapter `GoalsRepository` (AsyncStorage) | ✅ |
-| **7** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
-| **8** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
+| **7** UI contemporánea | Títulos únicos, chrome actual, modo oscuro (sistema / claro / oscuro) | ✅ |
+| **8** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
+| **9** Documentación de cierre | README de paquetes, coverage, huecos honestos | Pendiente |
 
 Historias de producto (HU 1–4), diagramas y recortes de alcance: [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md).
 
@@ -137,13 +141,13 @@ En otra terminal:
 npm run android
 ```
 
-La app abre el **listado nativo** con 3 metas seed (Vacaciones, Fondo de emergencia, Bicicleta) si el almacenamiento está vacío. Un tap abre el detalle en WebView local; un abono actualiza la store y el listado al volver atrás, sin recargar. Tras matar la app, el acumulado se lee de AsyncStorage. Si el abono llega al 100%, Android muestra un **Toast nativo** con el nombre de la meta (no un `Alert` de RN). iOS de la librería sigue en stub.
+La app abre el **listado nativo** con 3 metas seed si el almacenamiento está vacío. El título “Metas de ahorro” vive solo en el header; arriba a la derecha se cicla apariencia (sistema / claro / oscuro). Un tap abre el detalle en WebView local (sin repetir el nombre como `h1`); un abono actualiza la store y el listado al volver atrás, sin recargar. Tras matar la app, el acumulado y la preferencia de apariencia se conservan. Si el abono llega al 100%, Android muestra un **Toast nativo** con el nombre de la meta.
 
 ```bash
 npm test
 ```
 
-Cubre dominio, parser Zod, use cases, slice/selectores, repositorio persistido (fake key-value), bridge de abono, adapter de notificaciones, wrappers de `libreria/` (TurboModule mockeado) y el listado (RNTL), más el smoke de `App.test.tsx`.
+Cubre dominio, parser Zod, use cases, slice/selectores, repositorio persistido, apariencia (`resolveScheme` + persistencia), bridge de abono, adapter de notificaciones, wrappers de `libreria/` y el listado (RNTL), más el smoke de `App.test.tsx`.
 
 iOS del template existe; el cierre de Fase 1 es **Android**.
 
@@ -154,13 +158,14 @@ iOS del template existe; el cierre de Fase 1 es **Android**.
 | Documento | Contenido |
 |-----------|-----------|
 | [`docs/PLAN_EJECUCION.md`](docs/PLAN_EJECUCION.md) | Alcance HU 1–4, arquitectura, contrato `postMessage`, fases |
-| [`openspec/specs/`](openspec/specs/) | Specs vigentes: workspaces, host, micro-app, librería, dominio, contrato `postMessage`, listado, notificaciones, persistencia |
+| [`openspec/specs/`](openspec/specs/) | Specs vigentes: workspaces, host, micro-app, librería, dominio, contrato `postMessage`, listado, notificaciones, persistencia, apariencia |
 | [`openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/`](openspec/changes/archive/2026-08-20-fase-1-andamiaje-monorepo/) | Change archivado de Fase 1 |
 | [`openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/`](openspec/changes/archive/2026-08-20-fase-2-dominio-puertos-contrato/) | Change archivado de Fase 2 |
 | [`openspec/changes/archive/2026-08-20-fase-3-redux-hu-1/`](openspec/changes/archive/2026-08-20-fase-3-redux-hu-1/) | Change archivado de Fase 3 |
 | [`openspec/changes/archive/2026-08-20-fase-4-webview-abono/`](openspec/changes/archive/2026-08-20-fase-4-webview-abono/) | Change archivado de Fase 4 |
 | [`openspec/changes/archive/2026-08-20-fase-5-hu-4-nativo-real/`](openspec/changes/archive/2026-08-20-fase-5-hu-4-nativo-real/) | Change archivado de Fase 5 |
 | [`openspec/changes/archive/2026-08-20-fase-6-persistencia/`](openspec/changes/archive/2026-08-20-fase-6-persistencia/) | Change archivado de Fase 6 |
+| [`openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/`](openspec/changes/archive/2026-08-20-fase-7-ui-contemporanea/) | Change archivado de Fase 7 |
 | [`mobile/README.md`](mobile/README.md) | Notas del template CLI (Metro, reload) |
 
 ---
@@ -195,7 +200,7 @@ Un change OpenSpec ≈ una rama `feat/<change-name>` ≈ un PR → `main`. El hi
 `main` es la rama de integración. Cada change de OpenSpec se implementa en su propia rama y entra con pull request.
 
 1. Actualizar `main` desde `origin/main`.
-2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-7-ia-gobernada`).
+2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-8-ia-gobernada`).
 3. Commits convencionales (`feat`, `fix`, `test`, `docs`, `chore`) y push en esa rama.
 4. Abrir un PR hacia `main` y mergearlo ahí.
 

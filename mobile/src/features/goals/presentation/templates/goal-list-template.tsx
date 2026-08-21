@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { color, spacing, type } from '../../../../shared/ui/tokens';
+import { spacing, type, useThemeTokens } from '../../../../shared/ui/tokens';
 import type { GoalRow } from '../../store';
 import { GoalListItem } from '../molecules/goal-list-item';
 
@@ -16,19 +16,26 @@ export function GoalListTemplate({
   onGoalPress,
 }: GoalListTemplateProps) {
   const insets = useSafeAreaInsets();
+  const { color } = useThemeTokens();
 
   return (
     <View
       style={[
         styles.screen,
-        { paddingTop: insets.top + spacing.md, paddingBottom: insets.bottom },
+        {
+          backgroundColor: color.background,
+          paddingBottom: insets.bottom,
+        },
       ]}>
-      <Text style={styles.title}>Metas de ahorro</Text>
       {status === 'loading' || status === 'idle' ? (
-        <Text style={styles.status}>Cargando...</Text>
+        <Text style={[styles.status, { color: color.textMuted }]}>
+          Cargando...
+        </Text>
       ) : null}
       {status === 'failed' ? (
-        <Text style={styles.status}>No se pudieron cargar las metas</Text>
+        <Text style={[styles.status, { color: color.textMuted }]}>
+          No se pudieron cargar las metas
+        </Text>
       ) : null}
       <FlatList
         data={rows}
@@ -48,17 +55,11 @@ export function GoalListTemplate({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: color.background,
     paddingHorizontal: spacing.md,
-  },
-  title: {
-    ...type.title,
-    color: color.text,
-    marginBottom: spacing.md,
+    paddingTop: spacing.md,
   },
   status: {
     ...type.body,
-    color: color.textMuted,
     marginBottom: spacing.sm,
   },
   list: {

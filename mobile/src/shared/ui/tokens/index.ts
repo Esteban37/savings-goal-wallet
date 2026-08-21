@@ -1,13 +1,13 @@
-export const color = {
-  background: '#F4F4F4',
-  surface: '#FFFFFF',
-  text: '#1A1A1A',
-  textMuted: '#6B6B6B',
-  accent: '#C4122F',
-  progressTrack: '#E6E6E6',
-  progressFill: '#C4122F',
-  border: '#E0E0E0',
-};
+export {
+  palette,
+  type ColorPalette,
+  type ColorScheme,
+} from './palette';
+export {
+  ThemeTokensProvider,
+  useThemeTokens,
+  type ThemeTokens,
+} from './use-theme-tokens';
 
 export const spacing = {
   xs: 4,

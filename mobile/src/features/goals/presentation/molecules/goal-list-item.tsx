@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { MoneyText } from '../../../../shared/ui/atoms/money-text';
 import { ProgressBar } from '../../../../shared/ui/atoms/progress-bar';
-import { color, spacing, type } from '../../../../shared/ui/tokens';
+import { spacing, type, useThemeTokens } from '../../../../shared/ui/tokens';
 import type { GoalRow } from '../../store';
 
 type GoalListItemProps = GoalRow & {
@@ -15,21 +15,53 @@ export function GoalListItem({
   progressPercent,
   onPress,
 }: GoalListItemProps) {
+  const { color, scheme } = useThemeTokens();
+  const isDark = scheme === 'dark';
+
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={styles.card}>
-      <Text style={styles.name}>{name}</Text>
+      style={[
+        styles.card,
+        {
+          backgroundColor: color.surface,
+          borderColor: isDark ? color.surface : color.border,
+          borderWidth: isDark ? 0 : StyleSheet.hairlineWidth,
+          ...Platform.select({
+            android: { elevation: isDark ? 0 : 2 },
+            ios: isDark
+              ? {}
+              : {
+                  shadowColor: '#111827',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.08,
+                  shadowRadius: 8,
+                },
+            default: {},
+          }),
+        },
+      ]}>
+      <Text style={[styles.name, { color: color.text }]}>{name}</Text>
       <View style={styles.row}>
-        <Text style={styles.label}>Objetivo</Text>
-        <MoneyText amount={targetAmount} style={styles.amount} />
+        <Text style={[styles.label, { color: color.textMuted }]}>Objetivo</Text>
+        <MoneyText
+          amount={targetAmount}
+          style={[styles.amount, { color: color.text }]}
+        />
       </View>
       <View style={styles.row}>
-        <Text style={styles.label}>Acumulado</Text>
-        <MoneyText amount={depositedAmount} style={styles.amount} />
+        <Text style={[styles.label, { color: color.textMuted }]}>
+          Acumulado
+        </Text>
+        <MoneyText
+          amount={depositedAmount}
+          style={[styles.amount, { color: color.text }]}
+        />
       </View>
-      <Text style={styles.percent}>{`${progressPercent}%`}</Text>
+      <Text style={[styles.percent, { color: color.accent }]}>
+        {`${progressPercent}%`}
+      </Text>
       <ProgressBar percent={progressPercent} />
     </Pressable>
   );
@@ -37,16 +69,12 @@ export function GoalListItem({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: color.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: color.border,
+    borderRadius: 16,
     padding: spacing.md,
     gap: spacing.sm,
   },
   name: {
     ...type.subtitle,
-    color: color.text,
   },
   row: {
     flexDirection: 'row',
@@ -55,14 +83,11 @@ const styles = StyleSheet.create({
   },
   label: {
     ...type.body,
-    color: color.textMuted,
   },
   amount: {
     ...type.body,
-    color: color.text,
   },
   percent: {
     ...type.caption,
-    color: color.accent,
   },
 });

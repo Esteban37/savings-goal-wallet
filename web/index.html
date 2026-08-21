@@ -1,23 +1,49 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Abono a meta</title>
     <style>
+      :root {
+        --accent: #c4122f;
+      }
+      html[data-theme="light"] {
+        --bg: #f3f4f6;
+        --surface: #ffffff;
+        --text: #111827;
+        --muted: #6b7280;
+        --error: #a10d26;
+        --input-border: #e5e7eb;
+      }
+      html[data-theme="dark"] {
+        --bg: #121212;
+        --surface: #1e1e1e;
+        --text: #f2f2f2;
+        --muted: #a3a3a3;
+        --error: #f2a0ad;
+        --input-border: #2a2a2a;
+      }
       body {
         font-family: system-ui, sans-serif;
         margin: 0;
         padding: 24px;
-        background: #f6f7fb;
-        color: #1b1b1b;
+        background: var(--bg);
+        color: var(--text);
       }
       h1 {
         font-size: 1.25rem;
+        margin: 0 0 16px;
+      }
+      .card {
+        background: var(--surface);
+        border-radius: 16px;
+        padding: 20px;
       }
       label {
         display: block;
         margin-top: 16px;
+        color: var(--muted);
       }
       input {
         width: 100%;
@@ -25,22 +51,27 @@
         margin-top: 8px;
         padding: 12px;
         font-size: 1rem;
+        border: 1px solid var(--input-border);
+        border-radius: 10px;
+        background: var(--bg);
+        color: var(--text);
       }
       button {
         margin-top: 16px;
-        padding: 12px 16px;
+        width: 100%;
+        padding: 14px 16px;
         font-size: 1rem;
         border: 0;
-        border-radius: 8px;
-        background: #c8102e;
+        border-radius: 10px;
+        background: var(--accent);
         color: #fff;
       }
       .muted {
-        color: #5c5c5c;
+        color: var(--muted);
       }
       .error {
         margin-top: 12px;
-        color: #a10d26;
+        color: var(--error);
       }
       .hidden {
         display: none;
@@ -49,8 +80,8 @@
   </head>
   <body>
     <p id="waiting" class="muted">Cargando meta…</p>
-    <section id="detail" class="hidden">
-      <h1 id="goal-name"></h1>
+    <section id="detail" class="card hidden">
+      <h1>Abonar</h1>
       <p>Objetivo: <span id="target-amount"></span></p>
       <p>Acumulado: <span id="deposited-amount"></span></p>
       <p>Progreso: <span id="progress-percent"></span>%</p>

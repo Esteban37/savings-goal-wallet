@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4) y `fase-6-persistencia` (AsyncStorage). Las fases 7–8 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage) y `fase-7-ui-contemporanea` (títulos únicos y apariencia). Las fases 8–9 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -318,14 +318,16 @@ F1 andamiaje ──► F2 dominio+contratos ──► F3 HU1 listado
                                               ▼
                                          F4 HU2–3 bridge
                                               │
-                         ┌────────────────────┼─────────────────┐
-                         ▼                    ▼                 ▼
-                    F5 HU4 nativo      F6 persistencia     F7 IA
-                         │                    │                 │
-                         └────────────────────┴────────► F8 docs/cierre
+                         ┌────────────────────┼──────────────┐
+                         ▼                    ▼              ▼
+                    F5 HU4 nativo      F6 persistencia  F7 UI/theme
+                         │                    │              │
+                         └────────────────────┴──────┬───────┘
+                                                     ▼
+                                               F8 IA ──► F9 docs/cierre
 ```
 
-F7 puede avanzar en paralelo desde F2 (skills se usan de verdad). F6 no empieza hasta que el puerto `GoalsRepository` esté ejercido por InMemory.
+F8 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F7 UI no empieza hasta que existan listado y detalle (F4). F6 no empieza hasta que el puerto `GoalsRepository` esté ejercido por InMemory.
 
 ### Fase 1 — Andamiaje del monorepo
 
@@ -400,7 +402,22 @@ F7 puede avanzar en paralelo desde F2 (skills se usan de verdad). F6 no empieza 
 
 **Cierre:** primer launch siembra 3 metas; abono + kill + relaunch conserva el acumulado. **Estado:** aplicada y archivada.
 
-### Fase 7 — IA gobernada
+### Fase 7 — UI contemporánea (títulos únicos y apariencia)
+
+**Vehículo:** change `fase-7-ui-contemporanea`.
+
+**Hace**
+
+- Tokens light/dark; primera vez el host sigue el esquema del sistema.
+- Control de apariencia (sistema / claro / oscuro) arriba a la derecha del stack header, persistido.
+- Un solo título por pantalla (header nativo); el listado y la micro-app no lo repiten.
+- La micro-app sigue el esquema resuelto con `data-theme` (sin nuevo tipo `postMessage`).
+
+**No hace:** skills/agent ni `docs/ia/USO_IA.md` (Fase 8); cierre completo de README (Fase 9).
+
+**Cierre:** listado y detalle con chrome contemporáneo; modo oscuro persistido o siguiendo el OS. **Estado:** aplicada y archivada.
+
+### Fase 8 — IA gobernada
 
 En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
 
@@ -408,7 +425,7 @@ En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
 2. Agent: reviewer de boundaries (domain sin RN, coverage, no `any`).
 3. `docs/ia/USO_IA.md`: qué generó IA, qué se escribió a mano, prompts, **qué se rechazó o corrigió**.
 
-### Fase 8 — Documentación y cierre
+### Fase 9 — Documentación y cierre
 
 - README raíz: setup iOS/Android, Node/RN 0.81, tests/coverage, diagrama, catálogo `postMessage`, uso de IA, huecos honestos.
 - README de `libreria/` y `mobile/`.
@@ -436,7 +453,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 ## 10. Recorrido de demo
 
-- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast nativo → kill/relaunch conserva acumulado.
+- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast nativo → kill/relaunch conserva acumulado → apariencia sistema/claro/oscuro (header único).
 - **Arquitectura a mostrar:** feature-first vs capas globales, TurboModule vs NativeModule, `DEPOSIT_REQUESTED` vs confirmar en web, `extraArgument` vs IoC, atomic mínimo vs design system.
 - **IA gobernada:** skill/agent y un rechazo concreto (p. ej. no copiar nativo a `mobile/`, no `any` en el parser, no Alert de RN).
 - **Puntos de diseño:** autolinking/Metro, boundaries, listener HU 4, por qué Redux si el WebView ya tiene UI.
@@ -476,7 +493,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real` y `fase-6-persistencia` están **archivados** (proposal, specs, design, tasks aplicados).
+Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia` y `fase-7-ui-contemporanea` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
@@ -486,4 +503,5 @@ Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fas
 | 4 | `fase-4-webview-abono` | Archivado. WebView inmersivo, bridge y listado sin recargar. |
 | 5 | `fase-5-hu-4-nativo-real` | Archivado. Toast nativo Android, adapter y tests JS de la librería. |
 | 6 | `fase-6-persistencia` | Archivado. AsyncStorage detrás de `GoalsRepository`, seed-if-empty. |
-| 7–8 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |
+| 7 | `fase-7-ui-contemporanea` | Archivado. Títulos únicos, chrome contemporáneo, apariencia persistida. |
+| 8–9 | Changes nuevos al arrancar cada fase | No crearlos ahora: el plan ya evita solapes |

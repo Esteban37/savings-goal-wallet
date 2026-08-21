@@ -1,4 +1,4 @@
-import { type ComponentClass, type Ref } from 'react';
+import { type ComponentClass, type Ref, useEffect, useRef } from 'react';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -6,6 +6,8 @@ import {
   type WebViewMessageEvent,
   type WebViewProps,
 } from 'react-native-webview';
+import type { ColorScheme } from '../../../../shared/ui/tokens';
+import { createThemeAttributeScript } from './create-theme-attribute-script';
 
 const WebView = RNWebView as unknown as ComponentClass<WebViewProps>;
 
@@ -17,19 +19,37 @@ export type HostWebView = {
 
 type ImmersiveWebViewTemplateProps = {
   sourceUri: string;
+  colorScheme: ColorScheme;
   onMessage: (event: WebViewMessageEvent) => void;
   onWebViewRef: Ref<HostWebView>;
 };
 
 export function ImmersiveWebViewTemplate({
   sourceUri,
+  colorScheme,
   onMessage,
   onWebViewRef,
 }: ImmersiveWebViewTemplateProps) {
+  const innerRef = useRef<HostWebView | null>(null);
+  const themeScript = createThemeAttributeScript(colorScheme);
+
+  const setRef = (instance: HostWebView | null) => {
+    innerRef.current = instance;
+    if (typeof onWebViewRef === 'function') {
+      onWebViewRef(instance);
+    } else if (onWebViewRef) {
+      onWebViewRef.current = instance;
+    }
+  };
+
+  useEffect(() => {
+    innerRef.current?.injectJavaScript(themeScript);
+  }, [themeScript]);
+
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
       <WebView
-        ref={onWebViewRef as never}
+        ref={setRef as never}
         source={{ uri: sourceUri }}
         onMessage={onMessage}
         javaScriptEnabled
@@ -37,6 +57,8 @@ export function ImmersiveWebViewTemplate({
         allowFileAccess
         allowingReadAccessToURL={sourceUri}
         mixedContentMode="always"
+        injectedJavaScriptBeforeContentLoaded={themeScript}
+        injectedJavaScript={themeScript}
         style={styles.webView}
       />
     </SafeAreaView>
