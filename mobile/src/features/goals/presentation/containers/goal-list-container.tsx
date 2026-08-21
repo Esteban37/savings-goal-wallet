@@ -3,7 +3,11 @@ import { useAppDispatch, useAppSelector } from '../../../../app/store/hooks';
 import { fetchGoals, selectGoalRows } from '../../store';
 import { GoalListPresenter } from '../presenters/goal-list-presenter';
 
-export function GoalListContainer() {
+type GoalListContainerProps = {
+  onGoalPress?: (goalId: string) => void;
+};
+
+export function GoalListContainer({ onGoalPress }: GoalListContainerProps) {
   const dispatch = useAppDispatch();
   const rows = useAppSelector(selectGoalRows);
   const status = useAppSelector(state => state.goals.status);
@@ -12,15 +16,18 @@ export function GoalListContainer() {
     void dispatch(fetchGoals());
   }, [dispatch]);
 
-  const onGoalPress = useCallback((_goalId: string) => {
-    return;
-  }, []);
+  const handleGoalPress = useCallback(
+    (goalId: string) => {
+      onGoalPress?.(goalId);
+    },
+    [onGoalPress],
+  );
 
   return (
     <GoalListPresenter
       rows={rows}
       status={status}
-      onGoalPress={onGoalPress}
+      onGoalPress={handleGoalPress}
     />
   );
 }

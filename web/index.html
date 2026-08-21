@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Savings goal</title>
+    <title>Abono a meta</title>
     <style>
       body {
         font-family: system-ui, sans-serif;
@@ -15,6 +15,17 @@
       h1 {
         font-size: 1.25rem;
       }
+      label {
+        display: block;
+        margin-top: 16px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 8px;
+        padding: 12px;
+        font-size: 1rem;
+      }
       button {
         margin-top: 16px;
         padding: 12px 16px;
@@ -24,12 +35,30 @@
         background: #c8102e;
         color: #fff;
       }
+      .muted {
+        color: #5c5c5c;
+      }
+      .error {
+        margin-top: 12px;
+        color: #a10d26;
+      }
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
-    <h1>Savings goal (scaffold)</h1>
-    <p>Local micro-app. Tap the button to send a test deposit request.</p>
-    <button id="deposit-button" type="button">Request test deposit</button>
+    <p id="waiting" class="muted">Cargando meta…</p>
+    <section id="detail" class="hidden">
+      <h1 id="goal-name"></h1>
+      <p>Objetivo: <span id="target-amount"></span></p>
+      <p>Acumulado: <span id="deposited-amount"></span></p>
+      <p>Progreso: <span id="progress-percent"></span>%</p>
+      <label for="amount-input">Monto a abonar (pesos)</label>
+      <input id="amount-input" type="number" min="1" step="1" inputmode="numeric" />
+      <button id="deposit-button" type="button">Abonar</button>
+      <p id="error" class="error hidden"></p>
+    </section>
     <script src="./app.js"></script>
   </body>
 </html>

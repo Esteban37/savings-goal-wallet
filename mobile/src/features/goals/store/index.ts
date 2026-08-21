@@ -6,4 +6,4 @@ export {
   type GoalsState,
   type GoalsStatus,
 } from './goals-slice';
-export { selectGoalRows, type GoalRow } from './selectors';
+export { selectGoalById, selectGoalRows, type GoalRow } from './selectors';

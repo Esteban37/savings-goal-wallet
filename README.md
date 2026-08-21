@@ -20,7 +20,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | `libreria/` | `rn-savings-notifier` | TurboModule: aviso al completar una meta y diálogo de confirmación |
 | `web/` | `web` | Micro-app HTML/JS estática cargada en el WebView (`file://`) |
 
-**Fase actual:** Fase 3 — Redux y HU 1. El host abre el listado nativo (nombre, objetivo, acumulado, %). Detalle/abono en WebView y Toast nativo real llegan en fases siguientes.
+**Fase actual:** Fase 4 — HU 2–3. Listado nativo, detalle/abono en WebView local y store actualizada al volver atrás **sin recargar**. Toast nativo real llega en Fase 5.
 
 ---
 
@@ -33,13 +33,14 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 - **Arquitectura congelada** — Clean Architecture feature-first, DI por factory + `extraArgument` de RTK
 - **Kernel testeable** — dominio, puertos y parser Zod cubiertos por Jest
 - **Listado nativo** — RTK + `extraArgument`; seed in-memory; Container-Presenter
+- **Detalle/abono** — WebView inmersivo, `postMessage` Zod, listado sin reload
 - **OpenSpec** — un change por fase, rama `feat/<change-name>`, PR hacia `main`
 
 ---
 
 ## Funcionalidades
 
-### Implementado (Fases 1–3)
+### Implementado (Fases 1–4)
 
 | Funcionalidad | Estado |
 |---------------|--------|
@@ -55,6 +56,8 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | Catálogo Zod `postMessage` + `parseBridgeMessage` | ✅ |
 | Store RTK + `extraArgument` (`createAppDependencies`) | ✅ |
 | Listado nativo HU 1 (nombre / objetivo / acumulado / %) | ✅ |
+| WebView inmersivo de detalle/abono (HU 2) | ✅ |
+| Abono web → `MakeDeposit` → listado sin recargar (HU 3) | ✅ |
 
 ### Por fase
 
@@ -63,7 +66,7 @@ Savings Goal Wallet es un producto de tres paquetes en un solo repositorio. El h
 | **1** Andamiaje del monorepo | Metro, autolinking, WebView, librería stub | ✅ |
 | **2** Dominio y contratos | `SavingsGoal`, Zod `postMessage`, puertos | ✅ |
 | **3** HU 1 — listado nativo | RTK + listado nombre / objetivo / acumulado / % | ✅ |
-| **4** HU 2–3 — detalle y abono | WebView inmersivo; listado sin recargar | Pendiente |
+| **4** HU 2–3 — detalle y abono | WebView inmersivo; listado sin recargar | ✅ |
 | **5** HU 4 — nativo real | Toast / notificación al 100% | Pendiente |
 | **6** Persistencia | Adapter `GoalsRepository` (stretch) | Pendiente |
 | **7** IA gobernada | Skills, agent, `docs/ia/USO_IA.md` | Pendiente |
@@ -130,13 +133,13 @@ En otra terminal:
 npm run android
 ```
 
-La app abre el **listado nativo** con 3 metas seed (Vacaciones, Fondo de emergencia, Bicicleta). El host importa `rn-savings-notifier` al arrancar (stub; aún no hay Toast). Los assets de `web/` siguen en Android para Fase 4; `App.tsx` ya no monta el WebView.
+La app abre el **listado nativo** con 3 metas seed (Vacaciones, Fondo de emergencia, Bicicleta). Un tap abre el detalle en WebView local; un abono actualiza la store y el listado al volver atrás, sin recargar. El host importa `rn-savings-notifier` al arrancar (stub; Toast real es Fase 5).
 
 ```bash
 npm test
 ```
 
-Cubre dominio, parser Zod, use cases, slice/selectores y el listado (RNTL), más el smoke de `App.test.tsx`.
+Cubre dominio, parser Zod, use cases, slice/selectores, bridge de abono, listener stub y el listado (RNTL), más el smoke de `App.test.tsx`.
 
 iOS del template existe; el cierre de Fase 1 es **Android**.
 
@@ -185,7 +188,7 @@ Un change OpenSpec ≈ una rama `feat/<change-name>` ≈ un PR → `main`. El hi
 `main` es la rama de integración. Cada change de OpenSpec se implementa en su propia rama y entra con pull request.
 
 1. Actualizar `main` desde `origin/main`.
-2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-4-webview-abono`).
+2. Crear `feat/<change-name>` desde `main` (siguiente: `feat/fase-5-nativo-real`).
 3. Commits convencionales (`feat`, `fix`, `test`, `docs`, `chore`) y push en esa rama.
 4. Abrir un PR hacia `main` y mergearlo ahí.
 

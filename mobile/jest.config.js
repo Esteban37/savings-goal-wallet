@@ -2,7 +2,7 @@ module.exports = {
   preset: 'react-native',
   watchman: false,
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-redux|@reduxjs|immer)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native(-community)?|react-redux|@reduxjs|immer|@react-navigation|react-native-screens)/)',
   ],
   collectCoverageFrom: [
     'src/core/domain/**/*.ts',
@@ -10,6 +10,8 @@ module.exports = {
     'src/features/goals/application/**/*.ts',
     'src/features/goal-detail/application/**/*.ts',
     'src/features/goals/store/**/*.ts',
+    'src/features/goal-detail/store/**/*.ts',
+    'src/features/goal-detail/infrastructure/**/*.ts',
     'src/app/store/**/*.ts',
     '!src/**/index.ts',
     '!src/**/*.test.ts',
