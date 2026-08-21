@@ -4,7 +4,7 @@
 
 Este documento congela **alcance, arquitectura y orden de fases**. El objetivo es cubrir HU 1–4 **sin solapar trabajo ni reabrir Metro, contratos o carpetas a mitad de historia**. Las decisiones de ingeniería quedan nombradas en código y en el README.
 
-**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage), `fase-7-ui-contemporanea` (títulos únicos y apariencia) y `fase-8-alta-baja-metas` (FAB + baja). Las fases 9–10 se proponen como changes aparte cuando arranque cada una.
+**Changes OpenSpec archivados:** `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1` (listado HU 1), `fase-4-webview-abono` (HU 2–3), `fase-5-hu-4-nativo-real` (Toast nativo HU 4), `fase-6-persistencia` (AsyncStorage), `fase-7-ui-contemporanea` (títulos únicos y apariencia), `fase-8-alta-baja-metas` (FAB + baja) y `fase-9-ios-host` (Simulator + TurboModule iOS). Las fases 10–11 se proponen como changes aparte cuando arranque cada una.
 
 ---
 
@@ -30,7 +30,7 @@ HU 1–3 son el núcleo del producto (listado, detalle/abono en WebView, store a
 
 ### Recorte de alcance
 
-Si hay que recortar, el orden es: persistencia → diálogo nativo de confirmación de abono → iOS nativo de la librería. **No se recorta** el contrato `postMessage`, el puerto de notificación, ni el esqueleto de carpetas. Lo que falte se documenta en el README raíz: qué falta y cómo se haría.
+Si hay que recortar, el orden es: dispositivo físico / TestFlight → App Store. **No se recorta** el contrato `postMessage`, el puerto de notificación, el esqueleto de carpetas, ni el host iOS en Simulator. Lo que falte se documenta en el README raíz: qué falta y cómo se haría.
 
 ---
 
@@ -174,7 +174,7 @@ savings-goal-wallet/
 │   │   ├── NativeSavingsNotifier.ts   # Codegen spec
 │   │   └── index.ts                   # wrappers JS tipados
 │   ├── android/                   # Kotlin TurboModule
-│   └── ios/                       # ObjC/Swift stub
+│   └── ios/                       # ObjC TurboModule (overlay + UIAlertController)
 └── mobile/
     ├── src/
     │   ├── app/
@@ -273,7 +273,7 @@ Flujo HU 2–3 (sin recargar el listado):
 | --- | --- | --- | --- |
 | `GoalsRepository` | InMemory (seed) → AsyncStorage | 2 | 3 / 6 |
 | `GoalNotifier` | stub JS → TurboModule Toast/notif | 2 | 5 |
-| `ConfirmDialog` | stub `true` → `AlertDialog` / `UIAlertController` | 2 | 5 (stretch) |
+| `ConfirmDialog` | stub `true` → `AlertDialog` / `UIAlertController` | 2 | 5 Android / 9 iOS |
 | `WebBridge` (adapter, no puerto de dominio) | parser Zod + `injectJavaScript` / `postMessage` | 2 | 4 |
 
 Fase 1 ya deja la **API JS** de librería (`notifyGoalCompleted`, `showConfirmDialog`) con stubs que resuelven. Application en Fase 2 depende del puerto, no de `rn-savings-notifier`. El adapter se escribe en `features/notifications/infrastructure` y se cablea en `app/di`.
@@ -294,7 +294,7 @@ La librería es un paquete de primer nivel del monorepo: se **crea** y se consum
 | Tests | API JS con TurboModule mockeado; coverage de wrappers |
 | README propio | install, autolinking, API, ejemplo, cómo testear |
 
-Android es el cierre de demo. iOS del template se conserva; implementación Swift/ObjC real es stretch, no bloquea HU 4.
+Android y iOS Simulator son cierres de demo. El nativo de la librería vive en `libreria/` (Kotlin Toast + ObjC overlay / `UIAlertController`).
 
 ---
 
@@ -306,7 +306,7 @@ Android es el cierre de demo. iOS del template se conserva; implementación Swif
 - Jest + RNTL en `mobile/` y `libreria/`. **Cero tests en `web/`**.
 - Coverage razonable; meta declarada **≥70% en dominio** (`core/domain` + use cases puros).
 - npm workspaces + `.npmrc` `install-strategy=nested` (Metro/autolinking; npm no honra `hoistingLimits`). Yarn 1 + `nohoist` solo si el install anidado falla.
-- WebView: HTML local (`file:///android_asset/web/...`), no URL remota.
+- WebView: HTML local (`file://` en assets Android y bundle iOS), no URL remota.
 - Sin backend, secretos, PII, ni Expo.
 
 ---
@@ -327,10 +327,10 @@ F1 andamiaje ──► F2 dominio+contratos ──► F3 HU1 listado
                          │                    │              │
                          └────────────────────┴──────┬───────┘
                                                      ▼
-                                        F8 alta/baja ──► F9 IA ──► F10 docs/cierre
+                                        F8 alta/baja ──► F9 iOS ──► F10 IA ──► F11 docs/cierre
 ```
 
-F9 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F8 alta/baja no empieza hasta persistencia y UI (F6–F7). F7 UI no empieza hasta que existan listado y detalle (F4). F6 no empieza hasta que el puerto `GoalsRepository` esté ejercido por InMemory.
+F10 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F9 iOS no empieza hasta que el producto Android (F8) esté cerrado. F8 alta/baja no empieza hasta persistencia y UI (F6–F7). F7 UI no empieza hasta que existan listado y detalle (F4). F6 no empieza hasta que el puerto `GoalsRepository` esté ejercido por InMemory.
 
 ### Fase 1 — Andamiaje del monorepo
 
@@ -416,7 +416,7 @@ F9 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F8 alta/b
 - Un solo título por pantalla (header nativo); el listado y la micro-app no lo repiten.
 - La micro-app sigue el esquema resuelto con `data-theme` (sin nuevo tipo `postMessage`).
 
-**No hace:** alta/baja de metas (Fase 8); skills/agent ni `docs/ia/USO_IA.md` (Fase 9); cierre completo de README (Fase 10).
+**No hace:** alta/baja de metas (Fase 8); skills/agent ni `docs/ia/USO_IA.md` (Fase 10); cierre completo de README (Fase 11).
 
 **Cierre:** listado y detalle con chrome contemporáneo; modo oscuro persistido o siguiendo el OS. **Estado:** aplicada y archivada.
 
@@ -432,11 +432,26 @@ F9 (IA) puede avanzar en paralelo desde F2 (skills se usan de verdad). F8 alta/b
 - Long-press en la card → `showConfirmDialog` → `DeleteGoal`. Cancelar no borra.
 - Lista vacía persistida no se re-siembra.
 
-**No hace:** editar meta; skills/agent ni `docs/ia/USO_IA.md` (Fase 9); cierre completo de README (Fase 10).
+**No hace:** editar meta; skills/agent ni `docs/ia/USO_IA.md` (Fase 10); cierre completo de README (Fase 11).
 
 **Cierre:** alta desde FAB + web; baja con confirmación nativa; kill/relaunch conserva el conjunto (incluida lista vacía). **Estado:** aplicada y archivada.
 
-### Fase 9 — IA gobernada
+### Fase 9 — Entorno iOS
+
+**Vehículo:** change `fase-9-ios-host`.
+
+**Hace**
+
+- CocoaPods + New Architecture + Hermes; `npm run ios` desde la raíz.
+- Copia de `web/` al bundle iOS; WebView `file://` de plataforma (no `android_asset` en iOS).
+- TurboModule iOS real: overlay `Meta completada` / `Meta registrada` y `UIAlertController` para baja.
+- Simulator es el gate; no se copia nativo a `mobile/`.
+
+**No hace:** skills/agent ni `docs/ia/USO_IA.md` (Fase 10); cierre completo de README (Fase 11); App Store / TestFlight / dispositivo físico como criterio de merge.
+
+**Cierre:** la app abre en iOS Simulator con el mismo flujo de producto que Android. **Estado:** aplicada y archivada.
+
+### Fase 10 — IA gobernada
 
 En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
 
@@ -444,9 +459,9 @@ En `libreria/` y `mobile/` (`.cursor/` / `docs/ia/`):
 2. Agent: reviewer de boundaries (domain sin RN, coverage, no `any`).
 3. `docs/ia/USO_IA.md`: qué generó IA, qué se escribió a mano, prompts, **qué se rechazó o corrigió**.
 
-### Fase 10 — Documentación y cierre
+### Fase 11 — Documentación y cierre
 
-- README raíz: setup iOS/Android, Node/RN 0.81, tests/coverage, diagrama, catálogo `postMessage`, uso de IA, huecos honestos.
+- README raíz: setup iOS/Android (Fase 9 ya deja el run path iOS), Node/RN 0.81, tests/coverage, diagrama, catálogo `postMessage`, uso de IA, huecos honestos.
 - README de `libreria/` y `mobile/`.
 - Commits convencionales incrementales (`feat`, `fix`, `test`, `docs`, `chore`) en ramas `feat/<change-name>`.
 - Checklist del producto (sección 11).
@@ -472,7 +487,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 ## 10. Recorrido de demo
 
-- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast nativo → kill/relaunch conserva acumulado → apariencia sistema/claro/oscuro (header único) → FAB alta de meta → long-press baja con confirmación.
+- **Flujo de producto:** HU 1 → WebView → abono → listado sin reload → (HU 4) Toast/overlay nativo → kill/relaunch conserva acumulado → apariencia sistema/claro/oscuro (header único) → FAB alta de meta → long-press baja con confirmación. Mismo recorrido en Android y en iOS Simulator.
 - **Arquitectura a mostrar:** feature-first vs capas globales, TurboModule vs NativeModule, `DEPOSIT_REQUESTED` vs confirmar en web, `extraArgument` vs IoC, atomic mínimo vs design system.
 - **IA gobernada:** skill/agent y un rechazo concreto (p. ej. no copiar nativo a `mobile/`, no `any` en el parser, no Alert de RN).
 - **Puntos de diseño:** autolinking/Metro, boundaries, listener HU 4, por qué Redux si el WebView ya tiene UI.
@@ -491,6 +506,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 - [x] Store actualizado desde la web (HU 3).
 - [x] `libreria/`: nativo real (Toast Android), tests JS, consumida por `mobile/`.
 - [x] Alta y baja de metas (FAB + WebView create; long-press + confirmación nativa).
+- [x] Host iOS (Simulator): New Architecture, `web/` en el bundle, overlay y `UIAlertController`.
 - [ ] `mobile/`: tests y skill/agent.
 - [ ] Coverage del core en `libreria/` y `mobile/` (≥70% dominio).
 - [ ] TypeScript sin `any` injustificado.
@@ -513,7 +529,7 @@ Nombres de fixtures: `inputX`, `mockX`, `actualX`, `expectedX`.
 
 Arquitectura y orden de fases viven en este plan. Los changes de OpenSpec se crean **al arrancar cada fase**, no todos de antemano.
 
-Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia`, `fase-7-ui-contemporanea` y `fase-8-alta-baja-metas` están **archivados** (proposal, specs, design, tasks aplicados).
+Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fase-3-redux-hu-1`, `fase-4-webview-abono`, `fase-5-hu-4-nativo-real`, `fase-6-persistencia`, `fase-7-ui-contemporanea`, `fase-8-alta-baja-metas` y `fase-9-ios-host` están **archivados** (proposal, specs, design, tasks aplicados).
 
 | Fase | Change | Estado |
 | --- | --- | --- |
@@ -525,4 +541,5 @@ Los changes `fase-1-andamiaje-monorepo`, `fase-2-dominio-puertos-contrato`, `fas
 | 6 | `fase-6-persistencia` | Archivado. AsyncStorage detrás de `GoalsRepository`, seed-if-empty. |
 | 7 | `fase-7-ui-contemporanea` | Archivado. Títulos únicos, chrome contemporáneo, apariencia persistida. |
 | 8 | `fase-8-alta-baja-metas` | Archivado. FAB + formulario web de alta; long-press + confirmación de baja. |
-| 9–10 | Changes nuevos al arrancar cada fase | IA gobernada (9) y documentación/cierre (10) |
+| 9 | `fase-9-ios-host` | Archivado. Simulator, bundle `web/`, overlay y `UIAlertController`. |
+| 10–11 | Changes nuevos al arrancar cada fase | IA gobernada (10) y documentación/cierre (11) |

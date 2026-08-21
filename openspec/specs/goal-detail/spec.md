@@ -7,7 +7,7 @@ Defines the immersive goal-detail host (HU 2–3): a full-screen local WebView t
 ## Requirements
 
 ### Requirement: Detail is an immersive local web view
-When the user opens a savings goal from the list, the host SHALL present a full-screen detail screen whose primary content is a web view loading the bundled local micro-app. The screen MUST include a way to go back to the list. The web view MUST load a local file URI under the Android `web` asset path, not a remote URL. The detail screen MUST NOT add a tab bar or a second native form that duplicates the deposit UI.
+When the user opens a savings goal from the list, the host SHALL present a full-screen detail screen whose primary content is a web view loading the bundled local micro-app. The screen MUST include a way to go back to the list. The web view MUST load a local file URI for the bundled `web/index.html` on the current platform (Android asset path on Android, iOS application-resource path on iOS), not a remote URL. The detail screen MUST NOT add a tab bar or a second native form that duplicates the deposit UI.
 
 #### Scenario: Opening a goal shows the micro-app
 - **WHEN** the user selects a seeded goal from the native list
@@ -15,7 +15,11 @@ When the user opens a savings goal from the list, the host SHALL present a full-
 
 #### Scenario: Web view is local only
 - **WHEN** the detail screen loads
-- **THEN** the web view source is a local file URI under the bundled `web` asset path and is not an `https` URL
+- **THEN** the web view source is a local file URI under the bundled `web` path for the current platform and is not an `https` URL
+
+#### Scenario: iOS web view is not the Android asset URI
+- **WHEN** the detail screen loads on iOS
+- **THEN** the web view source is not `file:///android_asset/web/index.html` and is a local file URI to the bundled `web/index.html`
 
 ### Requirement: Host bootstraps the selected goal after web ready
 After the micro-app announces readiness, the host SHALL send a native-to-web `SESSION_BOOTSTRAP` message whose `goalId` and `goal` match the goal the user selected. The bootstrap `goal` MUST include `id`, `name`, `targetAmount`, `depositedAmount`, and `progressPercent` taken from the application store (not invented by the web view). The host MUST use the selected list identifier as the session goal even if the readiness message carries a different `goalId`.
@@ -62,7 +66,7 @@ Automated tests SHALL cover: parsing a web-to-native deposit envelope then apply
 - **THEN** goal-detail bridge and store-update tests execute and pass without opening an emulator
 
 ### Requirement: Create is an immersive local web view
-When the user starts registration from the list FAB, the host SHALL present a full-screen create screen whose primary content is a web view loading the same bundled local micro-app used for deposits. The screen MUST include a way to go back to the list. The web view MUST load a local file URI under the Android `web` asset path, not a remote URL. The create screen MUST NOT add a native form that duplicates the web registration fields.
+When the user starts registration from the list FAB, the host SHALL present a full-screen create screen whose primary content is a web view loading the same bundled local micro-app used for deposits. The screen MUST include a way to go back to the list. The web view MUST load a local file URI for the bundled `web/index.html` on the current platform (Android asset path on Android, iOS application-resource path on iOS), not a remote URL. The create screen MUST NOT add a native form that duplicates the web registration fields.
 
 #### Scenario: FAB shows the micro-app in create mode
 - **WHEN** the user presses the list FAB
@@ -70,7 +74,11 @@ When the user starts registration from the list FAB, the host SHALL present a fu
 
 #### Scenario: Create web view is local only
 - **WHEN** the create screen loads
-- **THEN** the web view source is a local file URI under the bundled `web` asset path and is not an `https` URL
+- **THEN** the web view source is a local file URI under the bundled `web` path for the current platform and is not an `https` URL
+
+#### Scenario: iOS create web view is not the Android asset URI
+- **WHEN** the create screen loads on iOS
+- **THEN** the web view source is not `file:///android_asset/web/index.html` and is a local file URI to the bundled `web/index.html`
 
 ### Requirement: Host bootstraps create mode after web ready
 After the micro-app announces readiness on the create screen, the host SHALL send a native-to-web `SESSION_BOOTSTRAP` message whose `mode` is `create` and that MUST NOT include a `goal` object. The host MUST treat create mode as the source of truth even if the readiness message carries a leftover deposit `goalId`.

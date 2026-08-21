@@ -8,12 +8,10 @@ import {
   interpretWebToNativeMessage,
   serializeNativeToWeb,
 } from '../../infrastructure';
+import { getLocalWebAssetUri } from '../../infrastructure/local-web-asset-uri';
 import { requestCreate, requestDeposit } from '../../store';
 import { WebViewHostPresenter } from '../presenters/web-view-host-presenter';
-import {
-  LOCAL_WEB_ASSET_URI,
-  type HostWebView,
-} from '../templates/immersive-web-view-template';
+import { type HostWebView } from '../templates/immersive-web-view-template';
 
 const CREATE_HANDSHAKE_GOAL_ID = 'pending';
 
@@ -151,7 +149,7 @@ export function GoalDetailContainer({
 
   return (
     <WebViewHostPresenter
-      sourceUri={LOCAL_WEB_ASSET_URI}
+      sourceUri={getLocalWebAssetUri()}
       colorScheme={colorScheme}
       onMessage={onMessage}
       onWebViewRef={onWebViewRef}
