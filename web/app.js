@@ -1,6 +1,7 @@
 const HANDSHAKE_GOAL_ID = 'pending';
 
 let bootstrappedGoalId = null;
+let sessionMode = null;
 
 function postToHost(type, payload) {
   const envelope = JSON.stringify({ type: type, payload: payload });
@@ -32,33 +33,74 @@ function hideError() {
   errorEl.classList.add('hidden');
 }
 
+function showCreateError(message) {
+  const errorEl = $('create-error');
+  errorEl.textContent = message;
+  errorEl.classList.remove('hidden');
+}
+
+function hideCreateError() {
+  const errorEl = $('create-error');
+  errorEl.textContent = '';
+  errorEl.classList.add('hidden');
+}
+
 function renderGoal(goal) {
   $('waiting').classList.add('hidden');
+  $('create').classList.add('hidden');
   $('detail').classList.remove('hidden');
   $('target-amount').textContent = formatPesos(goal.targetAmount);
   $('deposited-amount').textContent = formatPesos(goal.depositedAmount);
   $('progress-percent').textContent = String(goal.progressPercent);
 }
 
+function renderCreateForm() {
+  $('waiting').classList.add('hidden');
+  $('detail').classList.add('hidden');
+  $('create').classList.remove('hidden');
+  hideCreateError();
+  $('create-success').classList.add('hidden');
+  $('create-success').textContent = '';
+}
+
 function onHostMessage(message) {
   if (!message || typeof message !== 'object') {
     return;
   }
-  if (message.type === 'SESSION_BOOTSTRAP' && message.payload && message.payload.goal) {
-    bootstrappedGoalId = message.payload.goalId;
-    hideError();
-    renderGoal(message.payload.goal);
+  if (message.type === 'SESSION_BOOTSTRAP' && message.payload) {
+    sessionMode = message.payload.mode;
+    if (sessionMode === 'create') {
+      bootstrappedGoalId = null;
+      renderCreateForm();
+      return;
+    }
+    if (sessionMode === 'deposit' && message.payload.goal) {
+      bootstrappedGoalId = message.payload.goalId;
+      hideError();
+      renderGoal(message.payload.goal);
+    }
     return;
   }
-  if (message.type === 'DEPOSIT_SUCCEEDED' && message.payload) {
+  if (sessionMode === 'deposit' && message.type === 'DEPOSIT_SUCCEEDED' && message.payload) {
     hideError();
     $('deposited-amount').textContent = formatPesos(message.payload.depositedAmount);
     $('progress-percent').textContent = String(message.payload.progressPercent);
     $('amount-input').value = '';
     return;
   }
-  if (message.type === 'DEPOSIT_FAILED') {
+  if (sessionMode === 'deposit' && message.type === 'DEPOSIT_FAILED') {
     showError('No se pudo aplicar el abono. Revisa el monto e inténtalo de nuevo.');
+    return;
+  }
+  if (sessionMode === 'create' && message.type === 'CREATE_SUCCEEDED' && message.payload && message.payload.goal) {
+    hideCreateError();
+    const successEl = $('create-success');
+    successEl.textContent = 'Meta registrada: ' + message.payload.goal.name;
+    successEl.classList.remove('hidden');
+    return;
+  }
+  if (sessionMode === 'create' && message.type === 'CREATE_FAILED') {
+    showCreateError('No se pudo crear la meta. Revisa el nombre y el objetivo.');
   }
 }
 
@@ -71,7 +113,7 @@ window.addEventListener('load', function onLoad() {
 const depositButton = $('deposit-button');
 if (depositButton) {
   depositButton.addEventListener('click', function onDepositClick() {
-    if (!bootstrappedGoalId) {
+    if (sessionMode !== 'deposit' || !bootstrappedGoalId) {
       return;
     }
     const rawAmount = $('amount-input').value;
@@ -79,6 +121,21 @@ if (depositButton) {
     postToHost('DEPOSIT_REQUESTED', {
       goalId: bootstrappedGoalId,
       amount: amount,
+    });
+  });
+}
+
+const createButton = $('create-button');
+if (createButton) {
+  createButton.addEventListener('click', function onCreateClick() {
+    if (sessionMode !== 'create') {
+      return;
+    }
+    const name = $('name-input').value;
+    const targetAmount = Number($('target-input').value);
+    postToHost('CREATE_REQUESTED', {
+      name: name,
+      targetAmount: targetAmount,
     });
   });
 }

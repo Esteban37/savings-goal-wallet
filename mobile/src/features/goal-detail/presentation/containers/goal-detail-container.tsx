@@ -8,16 +8,20 @@ import {
   interpretWebToNativeMessage,
   serializeNativeToWeb,
 } from '../../infrastructure';
-import { requestDeposit } from '../../store';
+import { requestCreate, requestDeposit } from '../../store';
 import { WebViewHostPresenter } from '../presenters/web-view-host-presenter';
 import {
   LOCAL_WEB_ASSET_URI,
   type HostWebView,
 } from '../templates/immersive-web-view-template';
 
-type GoalDetailContainerProps = {
-  goalId: string;
+const CREATE_HANDSHAKE_GOAL_ID = 'pending';
+
+export type GoalDetailContainerProps = {
+  mode: 'deposit' | 'create';
+  goalId?: string;
   colorScheme: ColorScheme;
+  onCreateSuccess?: () => void;
 };
 
 function createSessionId(): string {
@@ -25,11 +29,15 @@ function createSessionId(): string {
 }
 
 export function GoalDetailContainer({
+  mode,
   goalId,
   colorScheme,
+  onCreateSuccess,
 }: GoalDetailContainerProps) {
   const dispatch = useAppDispatch();
-  const goal = useAppSelector(state => selectGoalById(state, goalId));
+  const goal = useAppSelector(state =>
+    goalId ? selectGoalById(state, goalId) : undefined,
+  );
   const webViewRef = useRef<HostWebView | null>(null);
   const sessionIdRef = useRef(createSessionId());
 
@@ -53,7 +61,19 @@ export function GoalDetailContainer({
       }
 
       if (decision.type === 'bootstrap') {
-        if (!goal) {
+        if (mode === 'create') {
+          injectNativeMessage({
+            type: 'SESSION_BOOTSTRAP',
+            payload: {
+              sessionId: sessionIdRef.current,
+              goalId: CREATE_HANDSHAKE_GOAL_ID,
+              userInfo: {},
+              mode: 'create',
+            },
+          });
+          return;
+        }
+        if (!goal || !goalId) {
           return;
         }
         injectNativeMessage({
@@ -62,6 +82,7 @@ export function GoalDetailContainer({
             sessionId: sessionIdRef.current,
             goalId,
             userInfo: {},
+            mode: 'deposit',
             goal: {
               id: goal.id,
               name: goal.name,
@@ -71,6 +92,37 @@ export function GoalDetailContainer({
             },
           },
         });
+        return;
+      }
+
+      if (decision.type === 'create') {
+        if (mode !== 'create') {
+          return;
+        }
+        void (async () => {
+          const result = await dispatch(
+            requestCreate({
+              name: decision.name,
+              targetAmount: decision.targetAmount,
+            }),
+          );
+          if (requestCreate.fulfilled.match(result)) {
+            injectNativeMessage({
+              type: 'CREATE_SUCCEEDED',
+              payload: result.payload,
+            });
+            onCreateSuccess?.();
+            return;
+          }
+          injectNativeMessage({
+            type: 'CREATE_FAILED',
+            payload: result.payload ?? { reason: 'invalid-target' },
+          });
+        })();
+        return;
+      }
+
+      if (mode !== 'deposit' || !goalId) {
         return;
       }
 
@@ -94,7 +146,7 @@ export function GoalDetailContainer({
         });
       })();
     },
-    [dispatch, goal, goalId, injectNativeMessage],
+    [dispatch, goal, goalId, injectNativeMessage, mode, onCreateSuccess],
   );
 
   return (

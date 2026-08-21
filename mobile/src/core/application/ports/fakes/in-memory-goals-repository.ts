@@ -21,4 +21,8 @@ export class InMemoryGoalsRepository implements GoalsRepository {
   async save(goal: SavingsGoal): Promise<void> {
     this.goals.set(goal.id, goal);
   }
+
+  async remove(id: string): Promise<void> {
+    this.goals.delete(id);
+  }
 }

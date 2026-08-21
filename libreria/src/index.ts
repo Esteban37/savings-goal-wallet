@@ -13,7 +13,14 @@ export function notifyGoalCompleted(goalName: string): Promise<void> {
 }
 
 /**
- * Shows a native confirm dialog. Android/iOS may still resolve `true` without UI.
+ * Notifies that a savings goal was registered (Android Toast; iOS may stub).
+ */
+export function notifyGoalCreated(goalName: string): Promise<void> {
+  return NativeRnSavingsNotifier.notifyGoalCreated(goalName);
+}
+
+/**
+ * Shows a native confirm dialog. Android shows AlertDialog; iOS may stub.
  */
 export function showConfirmDialog(
   input: ConfirmDialogInput,

@@ -6,6 +6,7 @@ import { AppearanceHeaderButton } from '../appearance/appearance-header-button';
 import { useAppearance } from '../appearance/appearance-provider';
 import { createNavigationTheme } from '../appearance/navigation-theme';
 import { GoalDetailScreen } from './goal-detail-screen';
+import { GoalCreateScreen } from './goal-create-screen';
 import { GoalListScreen } from './goal-list-screen';
 import type { RootStackParamList } from './types';
 
@@ -34,6 +35,11 @@ export function RootNavigator() {
           options={{ title: 'Metas de ahorro' }}
         />
         <Stack.Screen name="GoalDetail" component={GoalDetailScreen} />
+        <Stack.Screen
+          name="GoalCreate"
+          component={GoalCreateScreen}
+          options={{ title: 'Nueva meta' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -18,6 +18,8 @@ module.exports = {
     'src/features/goal-detail/store/**/*.ts',
     'src/features/goal-detail/infrastructure/**/*.ts',
     'src/features/goals/infrastructure/**/*.ts',
+    'src/features/notifications/infrastructure/**/*.ts',
+    'src/features/notifications/register-notifications-listeners.ts',
     'src/app/store/**/*.ts',
     'src/app/appearance/**/*.ts',
     'src/app/appearance/**/*.tsx',

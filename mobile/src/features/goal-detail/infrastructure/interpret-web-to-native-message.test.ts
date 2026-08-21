@@ -22,4 +22,17 @@ describe('interpretWebToNativeMessage', () => {
     expect(actualReady).toEqual({ type: 'bootstrap' });
     expect(actualDeposit).toEqual({ type: 'deposit', amount: 10000 });
   });
+
+  it('maps CREATE_REQUESTED to create', () => {
+    const actualCreate = interpretWebToNativeMessage({
+      type: 'CREATE_REQUESTED',
+      payload: { name: 'Viaje', targetAmount: 500000 },
+    });
+
+    expect(actualCreate).toEqual({
+      type: 'create',
+      name: 'Viaje',
+      targetAmount: 500000,
+    });
+  });
 });

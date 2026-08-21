@@ -92,6 +92,7 @@ describe('parseBridgeMessage', () => {
         sessionId: 's1',
         goalId: 'g1',
         userInfo: {},
+        mode: 'deposit',
         goal: {
           id: 'g1',
           name: 'Viaje',
@@ -106,11 +107,100 @@ describe('parseBridgeMessage', () => {
     expect(actualX.ok).toBe(true);
     if (actualX.ok) {
       expect(actualX.value.type).toBe('SESSION_BOOTSTRAP');
-      if (actualX.value.type === 'SESSION_BOOTSTRAP') {
+      if (
+        actualX.value.type === 'SESSION_BOOTSTRAP' &&
+        actualX.value.payload.mode === 'deposit'
+      ) {
         expect(actualX.value.payload.goal.name).toBe('Viaje');
         expect(actualX.value.payload.goal.progressPercent).toBe(25);
       }
     }
+  });
+
+  it('accepts SESSION_BOOTSTRAP in create mode without a goal', () => {
+    const inputEnvelope = {
+      type: 'SESSION_BOOTSTRAP',
+      payload: {
+        sessionId: 's1',
+        goalId: 'pending',
+        userInfo: {},
+        mode: 'create',
+      },
+    };
+    const actualX = parseBridgeMessage(inputEnvelope);
+
+    expect(actualX).toEqual({ ok: true, value: inputEnvelope });
+  });
+
+  it('rejects SESSION_BOOTSTRAP missing mode', () => {
+    const inputEnvelope = {
+      type: 'SESSION_BOOTSTRAP',
+      payload: {
+        sessionId: 's1',
+        goalId: 'g1',
+        userInfo: {},
+        goal: {
+          id: 'g1',
+          name: 'Viaje',
+          targetAmount: 100000,
+          depositedAmount: 25000,
+          progressPercent: 25,
+        },
+      },
+    };
+    const actualX = parseBridgeMessage(inputEnvelope);
+    const expectedX = { ok: false, error: 'invalid-message' } as const;
+
+    expect(actualX).toEqual(expectedX);
+  });
+
+  it('accepts CREATE_REQUESTED', () => {
+    const inputEnvelope = {
+      type: 'CREATE_REQUESTED',
+      payload: { name: 'Viaje', targetAmount: 500000 },
+    };
+    const actualX = parseBridgeMessage(inputEnvelope);
+
+    expect(actualX).toEqual({ ok: true, value: inputEnvelope });
+  });
+
+  it('rejects CREATE_REQUESTED missing name', () => {
+    const inputEnvelope = {
+      type: 'CREATE_REQUESTED',
+      payload: { targetAmount: 500000 },
+    };
+    const actualX = parseBridgeMessage(inputEnvelope);
+    const expectedX = { ok: false, error: 'invalid-message' } as const;
+
+    expect(actualX).toEqual(expectedX);
+  });
+
+  it('accepts CREATE_SUCCEEDED', () => {
+    const inputEnvelope = {
+      type: 'CREATE_SUCCEEDED',
+      payload: {
+        goal: {
+          id: 'g-new',
+          name: 'Viaje',
+          targetAmount: 500000,
+          depositedAmount: 0,
+          progressPercent: 0,
+        },
+      },
+    };
+    const actualX = parseBridgeMessage(inputEnvelope);
+
+    expect(actualX).toEqual({ ok: true, value: inputEnvelope });
+  });
+
+  it('accepts CREATE_FAILED', () => {
+    const inputEnvelope = {
+      type: 'CREATE_FAILED',
+      payload: { reason: 'invalid-target' },
+    };
+    const actualX = parseBridgeMessage(inputEnvelope);
+
+    expect(actualX).toEqual({ ok: true, value: inputEnvelope });
   });
 
   it('accepts DEPOSIT_SUCCEEDED', () => {

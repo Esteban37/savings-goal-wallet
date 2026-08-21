@@ -17,6 +17,14 @@ const depositRequestedMessageSchema = z.strictObject({
   }),
 });
 
+const createRequestedMessageSchema = z.strictObject({
+  type: z.literal('CREATE_REQUESTED'),
+  payload: z.strictObject({
+    name: nonEmptyString,
+    targetAmount: z.number(),
+  }),
+});
+
 const bootstrapGoalSchema = z.strictObject({
   id: nonEmptyString,
   name: nonEmptyString,
@@ -25,14 +33,25 @@ const bootstrapGoalSchema = z.strictObject({
   progressPercent: z.number(),
 });
 
-const sessionBootstrapMessageSchema = z.strictObject({
-  type: z.literal('SESSION_BOOTSTRAP'),
-  payload: z.strictObject({
+const sessionBootstrapPayloadSchema = z.discriminatedUnion('mode', [
+  z.strictObject({
     sessionId: nonEmptyString,
     goalId: nonEmptyString,
     userInfo: z.record(z.string(), z.unknown()),
+    mode: z.literal('deposit'),
     goal: bootstrapGoalSchema,
   }),
+  z.strictObject({
+    sessionId: nonEmptyString,
+    goalId: nonEmptyString,
+    userInfo: z.record(z.string(), z.unknown()),
+    mode: z.literal('create'),
+  }),
+]);
+
+const sessionBootstrapMessageSchema = z.strictObject({
+  type: z.literal('SESSION_BOOTSTRAP'),
+  payload: sessionBootstrapPayloadSchema,
 });
 
 const depositSucceededMessageSchema = z.strictObject({
@@ -53,23 +72,43 @@ const depositFailedMessageSchema = z.strictObject({
   }),
 });
 
+const createSucceededMessageSchema = z.strictObject({
+  type: z.literal('CREATE_SUCCEEDED'),
+  payload: z.strictObject({
+    goal: bootstrapGoalSchema,
+  }),
+});
+
+const createFailedMessageSchema = z.strictObject({
+  type: z.literal('CREATE_FAILED'),
+  payload: z.strictObject({
+    reason: nonEmptyString,
+  }),
+});
+
 export const webToNativeMessageSchema = z.discriminatedUnion('type', [
   webReadyMessageSchema,
   depositRequestedMessageSchema,
+  createRequestedMessageSchema,
 ]);
 
 export const nativeToWebMessageSchema = z.discriminatedUnion('type', [
   sessionBootstrapMessageSchema,
   depositSucceededMessageSchema,
   depositFailedMessageSchema,
+  createSucceededMessageSchema,
+  createFailedMessageSchema,
 ]);
 
 export const bridgeMessageSchema = z.discriminatedUnion('type', [
   webReadyMessageSchema,
   depositRequestedMessageSchema,
+  createRequestedMessageSchema,
   sessionBootstrapMessageSchema,
   depositSucceededMessageSchema,
   depositFailedMessageSchema,
+  createSucceededMessageSchema,
+  createFailedMessageSchema,
 ]);
 
 export type WebToNativeMessage = z.infer<typeof webToNativeMessageSchema>;

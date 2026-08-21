@@ -1,10 +1,15 @@
 import NativeRnSavingsNotifier from './NativeRnSavingsNotifier';
-import { notifyGoalCompleted, showConfirmDialog } from './index';
+import {
+  notifyGoalCompleted,
+  notifyGoalCreated,
+  showConfirmDialog,
+} from './index';
 
 jest.mock('./NativeRnSavingsNotifier', () => ({
   __esModule: true,
   default: {
     notifyGoalCompleted: jest.fn(() => Promise.resolve()),
+    notifyGoalCreated: jest.fn(() => Promise.resolve()),
     showConfirmDialog: jest.fn(() => Promise.resolve(true)),
   },
 }));
@@ -16,6 +21,7 @@ const mockNative = NativeRnSavingsNotifier as jest.Mocked<
 describe('rn-savings-notifier wrappers', () => {
   beforeEach(() => {
     mockNative.notifyGoalCompleted.mockClear();
+    mockNative.notifyGoalCreated.mockClear();
     mockNative.showConfirmDialog.mockClear();
   });
 
@@ -27,6 +33,17 @@ describe('rn-savings-notifier wrappers', () => {
     const actualResult = await notifyGoalCompleted(inputName);
 
     expect(mockNative.notifyGoalCompleted).toHaveBeenCalledWith(expectedName);
+    expect(actualResult).toBeUndefined();
+  });
+
+  it('forwards a created goal name to the TurboModule', async () => {
+    const inputName = 'Viaje';
+    const expectedName = 'Viaje';
+    mockNative.notifyGoalCreated.mockResolvedValue(undefined);
+
+    const actualResult = await notifyGoalCreated(inputName);
+
+    expect(mockNative.notifyGoalCreated).toHaveBeenCalledWith(expectedName);
     expect(actualResult).toBeUndefined();
   });
 

@@ -10,6 +10,7 @@ describe('serializeNativeToWeb', () => {
         sessionId: 'session-1',
         goalId: 'goal-vacaciones',
         userInfo: {},
+        mode: 'deposit',
         goal: {
           id: 'goal-vacaciones',
           name: 'Vacaciones',

@@ -6,6 +6,7 @@ import type { GoalRow } from '../../store';
 
 type GoalListItemProps = GoalRow & {
   onPress?: () => void;
+  onLongPress?: () => void;
 };
 
 export function GoalListItem({
@@ -14,6 +15,7 @@ export function GoalListItem({
   depositedAmount,
   progressPercent,
   onPress,
+  onLongPress,
 }: GoalListItemProps) {
   const { color, scheme } = useThemeTokens();
   const isDark = scheme === 'dark';
@@ -22,6 +24,7 @@ export function GoalListItem({
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
+      onLongPress={onLongPress}
       style={[
         styles.card,
         {
