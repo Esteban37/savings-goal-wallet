@@ -15,7 +15,7 @@ The mobile host SHALL be a React Native 0.81.x application generated with the of
 
 #### Scenario: Expo is absent
 - **WHEN** a developer inspects the mobile workspace dependencies
-- **THEN** no Expo runtime or Expo application framework package is declared
+- **THEN** no Expo runtime, Expo application framework, or Expo storage package is declared
 
 ### Requirement: Feature folder skeleton is reserved
 The mobile host source tree SHALL include a composition root, a shared kernel area, three feature slots (`goals`, `goal-detail`, `notifications`) with public barrels, and a shared UI area for tokens and atoms. The shared kernel MUST contain savings-goal domain types, application ports, and the postMessage contract. The composition root MUST configure application dependencies and a global application store. The host MAY add a minimal stack whose only feature screens are the goals list and goal-detail. Features MUST still import other features only through `public` barrels.
@@ -71,3 +71,14 @@ The host SHALL present a two-screen stack whose root is the native savings-goal 
 #### Scenario: Detail is pushed on the same store
 - **WHEN** the user opens a goal and the detail screen is visible
 - **THEN** the detail screen reads and writes the same application store instance as the list
+
+### Requirement: Production goals repository is durable
+The composition root MUST supply a production goals repository that stores goals on the device across process restarts. Get-goals and make-deposit MUST keep receiving that repository through injected dependencies. Presentation MUST NOT instantiate the storage adapter. The host MUST NOT use an Expo storage SDK.
+
+#### Scenario: Composition root injects durable storage
+- **WHEN** the Android application launches in production
+- **THEN** listing goals is backed by on-device storage (seeded only if storage is empty), not by a process-only in-memory map that forgets deposits when the process is killed
+
+#### Scenario: Screens do not own storage
+- **WHEN** a reviewer inspects list and detail presentation modules
+- **THEN** those modules do not import the on-device storage package
